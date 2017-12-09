@@ -1,0 +1,13 @@
+body .layer-ext-error .layui-layer-title{
+	background: #ec1354;
+	color: #fff;
+	border: none
+}
+}
+body .layui-ext-error .layui-layer-btn{
+	background: #e85e87;
+}
+body .layui-ext-error .layui-layer-btn a{
+	background: #BBB5B5;
+	border: none
+}

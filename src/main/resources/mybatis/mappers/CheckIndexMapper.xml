@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hd.mapper.CheckIndexMapper">
+	
+	<insert id="saveCheckIndex" parameterType="CheckIndex">
+		INSERT INTO p_index(batch_no, check_index, standard_value, deviation_value) 
+		VALUES(#{ci.batchNo}, #{ci.checkIndex}, #{ci.standardValue}, #{ci.deviationValue})
+	</insert>
+	
+	<select id="findCheckIndexCountByBatchNo" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM p_index WHERE batch_no=#{batchNo} AND check_index=#{checkIndex}
+	</select>
+
+	<select id="findBatchNo" resultType="String">
+		SELECT DISTINCT batch_no FROM p_index ORDER BY batch_no
+	</select>
+	
+	<select id="findCheckIndexByBatchNoAndIndexName" resultType="CheckIndex">
+		SELECT batch_no,check_index,standard_value,deviation_value FROM p_index WHERE batch_no=#{batchNo} AND check_index=#{indexName}
+	</select>
+	
+	<select id="findCheckIndex" resultType="CheckIndex">
+		SELECT batch_no,check_index,standard_value,deviation_value FROM p_index 
+		WHERE batch_no LIKE #{batchNo} AND check_index LIKE #{indexName} ORDER BY batch_no
+	</select>
+	
+	<select id="findCheckIndexByBatchNo" resultType="CheckIndex">
+		SELECT batch_no,check_index,standard_value,deviation_value FROM p_index WHERE batch_no=#{batchNo} ORDER BY check_index
+	</select>
+	
+	<update id="updateCheckIndex" parameterType="CheckIndex">
+		UPDATE p_index SET standard_value=#{ci.standardValue},deviation_value=#{ci.deviationValue} WHERE batch_no=#{ci.batchNo} AND check_index=#{ci.checkIndex}
+	</update>
+</mapper>

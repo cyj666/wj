@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hd.mapper.OtherMapper">
+	<!--暂时用不到 -->
+	<insert id="saveOther" parameterType="java.util.List">
+		insert into p_ot(batch_no,line_no,ot_status,create_date) values
+		<foreach collection="seList" item="se" separator=","> 
+			(
+				#{se.batchNo},
+				#{se.lineNo},
+				#{se.seStatus},
+				#{se.createDate}
+			)
+		</foreach>
+	</insert>
+	
+	<select id="getOther" resultType="Other">
+		select batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,create_date,
+		production_date,density_percent,ld_CV,water_ratio,ranges
+		from p_ot 
+		where DATE(create_date) = #{date} and (
+		yarnlevelness IS NULL or yarnlevelness = 0 or 
+		linear_density is null or linear_density=0 or 
+		grid_line is null or 
+		production_date is null or 
+		density_percent is null or 
+		ld_CV is null or 
+		water_ratio is null or 
+		ranges is null 
+		) order by create_date
+
+	</select>
+	
+	<select id="getOtherAll" resultType="Other">
+		select batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,create_date,
+		production_date,density_percent,ld_CV,water_ratio,ranges
+	    from p_ot 
+		where DATE(create_date) = #{date} order by create_date
+	</select>
+	
+
+	<update id="updateOther">
+		update p_ot
+		<set>
+			<if test="linearDensity!=null">linear_density = #{linearDensity},</if>
+			<if test="gridLine!=null">grid_line = #{gridLine},</if>
+			<if test="yarnlevelness!=null">yarnlevelness = #{yarnlevelness},</if>
+			<if test="productionDate!=null">production_date = #{productionDate},</if>
+			<if test="densityPercent!=null">density_percent = #{densityPercent},</if>
+			<if test="ldCV!=null">ld_CV = #{ldCV},</if>
+			<if test="waterRatio!=null">water_ratio = #{waterRatio},</if>			
+			<if test="ranges!=null">ranges = #{ranges}</if>
+		</set>
+		where batch_no=#{batchNo} and line_no=#{lineNo} and create_date=#{createDate}
+	</update>
+	
+	<insert id="saveOtherAll" parameterType="java.util.List">
+		insert into p_ot(batch_no,line_no,create_date,linear_density,grid_line,yarnlevelness,ot_status) values
+		<foreach collection="otList" item="ot" separator=","> 
+		(
+			#{ot.batchNo},
+			#{ot.lineNo},
+			#{ot.createDate},
+			#{ot.linearDensity},
+			#{ot.gridLine},
+			#{ot.yarnlevelness},
+			#{ot.otStatus}
+		)
+		</foreach>
+	</insert>
+</mapper>

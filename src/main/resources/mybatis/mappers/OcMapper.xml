@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hd.mapper.OcMapper">
+
+	<insert id="saveOc" parameterType="java.util.List">
+		insert into p_oc(batch_no,line_no,oli_content,create_date,oc_status) values
+		<foreach collection="ocList" item="oc" separator=",">
+			(
+				#{oc.batchNo},
+				#{oc.lineNo},
+				#{oc.oliContent},
+				#{oc.createDate},
+				#{oc.ocStatus}
+			)
+		</foreach>
+	</insert>
+	
+	<select id="findOc" resultType="int" parameterType="java.lang.String">
+		SELECT count(*) FROM p_oc WHERE create_date = #{createDate}
+	</select>
+	
+	<select id="findSomeByCreateDate" resultType="OliContent">
+		SELECT oc1.batch_no,oc1.line_no,oc1.oc_status,oc1.oli_content,DATE_FORMAT(oc1.create_date, '%Y-%m-%d %T') create_date FROM 
+		(SELECT batch_no,line_no,oc_status,oli_content,create_date FROM p_oc
+		WHERE oc_status=0 AND DATE(create_date)=#{createDate}) oc1,
+		(SELECT batch_no,line_no FROM p_oc WHERE oc_status=1 AND DATE(create_date)=#{createDate}) oc2
+		WHERE oc1.batch_no=oc2.batch_no AND oc1.line_no=oc2.line_no
+		UNION
+		SELECT batch_no,line_no,oc_status,oli_content,create_date FROM p_oc 
+		WHERE oc_status=1 AND DATE(create_date)=#{createDate}
+		ORDER BY batch_no,line_no,oc_status
+	</select>
+	
+	<delete id="deleteOliContent">
+		DELETE FROM p_oc WHERE batch_no=#{batchNo} AND line_no=#{lineNo} AND create_date=#{createDate}
+	</delete>
+	
+	<update id="updateOliContent">
+		UPDATE p_oc SET oc_status=0 WHERE batch_no=#{batchNo} AND line_no=#{lineNo} AND create_date=#{createDate}
+	</update>
+	
+	<insert id="saveDeleteOliContent" parameterType="java.util.List">
+		insert into p_oc_at(batch_no,line_no,oli_content,create_date,oc_status) values
+		<foreach collection="ocDelList" item="oc" separator=",">
+			(
+				#{oc.batchNo},
+				#{oc.lineNo},
+				#{oc.oliContent},
+				#{oc.createDate},
+				#{oc.ocStatus}
+			)
+		</foreach>
+	</insert>
+</mapper>

@@ -1,0 +1,39 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context-4.0.xsd
+						http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop-4.0.xsd 
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-4.0.xsd
+						http://www.springframework.org/schema/util 
+						http://www.springframework.org/schema/util/spring-util-4.0.xsd">
+	
+	<!-- 导入外部配置文件 -->
+	<context:property-placeholder location="classpath:db-mysql.properties"/>
+	
+	<!-- 扫描包 -->
+	<context:component-scan base-package="com.hd.service"></context:component-scan>
+	
+	<!-- 配置数据源 -->
+	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="shutdown">
+		<property name="driverClassName" value="${jdbc.driver}"></property>
+		<property name="jdbcUrl" value="${jdbc.url}"></property>
+		<property name="username" value="${jdbc.user}"></property>
+		<property name="password" value="${jdbc.password}"></property>
+		<!-- 等待连接池分配连接的最大时长(毫秒),超过这个时长还没有可用的连接则发生SQLException，缺省：30秒 -->
+		<property name="connectionTimeout" value="30000"></property>
+		<!-- 一个连接idle状态的最大时长(毫秒),超过则被释放(retired),缺省10分钟 -->
+		<property name="idleTimeout" value="600000"></property>
+		<!-- 一个连接生命时长（毫秒）,超过则被释放(retired),缺省30分钟，建议设置比数据库超时时长30秒，参考Mysql -->
+		<property name="maxLifetime" value="1800000"></property>
+		<!-- 连接池中最大的连接数。缺省值是：10 -->
+		<property name="maximumPoolSize" value="60"></property>
+		<property name="minimumIdle" value="10"></property>
+	</bean>
+	
+</beans>

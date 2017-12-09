@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hd.mapper.SelectMapper">
+	<!-- 查询一天的数据 -->
+	<select id="findByDay" resultType="NyLon">
+		SELECT bs4.batch_no,bs4.line_no,bs4.all_status nl_status,bs4.se_format nl_format,bs4.strength,bs4.strength_CV,bs4.elongation,bs4.elongation_CV,bs4.boiling_water,bs4.oli_content,bs4.yarnlevelness,bs4.linear_density,bs4.grid_line,
+		bs4.production_date,bs4.density_percent,bs4.ld_CV,bs4.water_ratio,bs4.ranges,cc.crimp_contraction,cc.crimp_stability,bs4.create_date FROM
+		(SELECT bs3.batch_no,bs3.line_no,bs3.all_status,bs3.se_format,bs3.strength,bs3.strength_CV,bs3.elongation,bs3.elongation_CV,bs3.boiling_water,bs3.oli_content,ot.yarnlevelness,ot.linear_density,ot.grid_line,
+		ot.production_date,ot.density_percent,ot.ld_CV,ot.water_ratio,ot.ranges,bs3.create_date FROM 
+		(SELECT bs2.batch_no,bs2.line_no,bs2.all_status,bs2.se_format,bs2.strength,bs2.strength_CV,bs2.elongation,bs2.elongation_CV,bs2.boiling_water,oc.oli_content,bs2.create_date FROM
+		(SELECT bs1.batch_no,bs1.line_no,bs1.all_status,bs1.se_format,bs1.strength,bs1.strength_CV,bs1.elongation,bs1.elongation_CV,bw.boiling_water,bs1.create_date FROM
+		(SELECT bs.batch_no,bs.line_no,bs.all_status,se.se_format,se.strength,se.strength_CV,se.elongation,se.elongation_CV,bs.create_date FROM
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status all_status,DATE(create_date) create_date FROM p_se 
+		WHERE DATE(create_date)=#{date} AND se_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status all_status,DATE(create_date) create_date FROM p_oc 
+		WHERE DATE(create_date)=#{date} AND oc_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status all_status,DATE(create_date) create_date FROM p_bw 
+		WHERE DATE(create_date)=#{date} AND bw_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status all_status,DATE(create_date) create_date FROM p_cc 
+		WHERE DATE(create_date)=#{date} AND pc_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,line_no,ot_status all_status,DATE(create_date) create_date FROM p_ot 
+		WHERE DATE(create_date)=#{date} AND ot_status IN (0,41,42,43,44,45,46,47,48,49)) bs
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status,se_format,ROUND(AVG(strength)) strength,STDDEV_SAMP(strength)/AVG(strength) strength_CV, ROUND(AVG(elongation)) elongation,STDDEV_SAMP(elongation)*10/AVG(elongation) elongation_CV,DATE(create_date) create_date
+		FROM p_se WHERE DATE(create_date)=#{date} AND se_status IN (0,41,42,43,44,45,46,47,48,49)
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),se_status) se
+		ON bs.batch_no=se.batch_no AND bs.line_no=se.line_no AND bs.all_status=se.se_status) bs1
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status,ROUND(AVG(boiling_water)) boiling_water,DATE(create_date) create_date
+		FROM p_bw WHERE DATE(create_date)=#{date} AND bw_status IN (0,41,42,43,44,45,46,47,48,49) 
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),bw_status) bw
+		ON bs1.batch_no=bw.batch_no AND bs1.line_no=bw.line_no AND bs1.all_status=bw.bw_status) bs2
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status,ROUND(AVG(oli_content)) oli_content,DATE(create_date) create_date
+		FROM p_oc WHERE DATE(create_date)=#{date} AND oc_status IN (0,41,42,43,44,45,46,47,48,49)
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),oc_status) oc
+		ON bs2.batch_no=oc.batch_no AND bs2.line_no=oc.line_no AND bs2.all_status=oc.oc_status) bs3
+		LEFT JOIN 
+		(SELECT batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,production_date,density_percent,ld_CV,water_ratio,ranges,create_date FROM p_ot
+		WHERE DATE(create_date)=#{date} GROUP BY batch_no,line_no,ot_status) ot
+		ON bs3.batch_no=ot.batch_no AND bs3.line_no=ot.line_no AND bs3.all_status=ot.ot_status) bs4
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status,ROUND(AVG(crimp_contraction)) crimp_contraction,ROUND(AVG(crimp_stability)) crimp_stability,DATE(create_date) create_date FROM p_cc
+		WHERE DATE(create_date)=#{date} GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),pc_status) cc
+		ON bs4.batch_no=cc.batch_no AND bs4.line_no=cc.line_no AND bs4.all_status=cc.pc_status
+	</select>
+	
+	<!-- 按时间段查找每一天的数据 -->
+	<select id="findByDateRange" resultType="NyLon">
+		SELECT bs4.batch_no,bs4.line_no,bs4.all_status nl_status,bs4.se_format nl_format,bs4.strength,bs4.strength_CV,bs4.elongation,bs4.elongation_CV,bs4.boiling_water,bs4.oli_content,bs4.yarnlevelness,bs4.linear_density,bs4.grid_line,
+		bs4.production_date,bs4.density_percent,bs4.ld_CV,bs4.water_ratio,bs4.ranges,cc.crimp_contraction,cc.crimp_stability,bs4.create_date FROM
+		(SELECT bs3.batch_no,bs3.line_no,bs3.all_status,bs3.se_format,bs3.strength,bs3.strength_CV,bs3.elongation,bs3.elongation_CV,bs3.boiling_water,bs3.oli_content,ot.yarnlevelness,ot.linear_density,ot.grid_line,
+		ot.production_date,ot.density_percent,ot.ld_CV,ot.water_ratio,ot.ranges,bs3.create_date FROM 
+		(SELECT bs2.batch_no,bs2.line_no,bs2.all_status,bs2.se_format,bs2.strength,bs2.strength_CV,bs2.elongation,bs2.elongation_CV,bs2.boiling_water,oc.oli_content,bs2.create_date FROM
+		(SELECT bs1.batch_no,bs1.line_no,bs1.all_status,bs1.se_format,bs1.strength,bs1.strength_CV,bs1.elongation,bs1.elongation_CV,bw.boiling_water,bs1.create_date FROM
+		(SELECT bs.batch_no,bs.line_no,bs.all_status,se.se_format,se.strength,se.strength_CV,se.elongation,se.elongation_CV,bs.create_date FROM
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status all_status,DATE(create_date) create_date FROM p_se 
+		WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND se_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status all_status,DATE(create_date) create_date FROM p_oc 
+		WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND oc_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status all_status,DATE(create_date) create_date FROM p_bw 
+		WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND bw_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status all_status,DATE(create_date) create_date FROM p_cc 
+		WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND pc_status IN (0,41,42,43,44,45,46,47,48,49)
+		UNION
+		SELECT batch_no,line_no,ot_status all_status,DATE(create_date) create_date FROM p_ot 
+		WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND ot_status IN (0,41,42,43,44,45,46,47,48,49)) bs
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status,se_format,ROUND(AVG(strength)) strength,STDDEV_SAMP(strength)/AVG(strength) strength_CV, ROUND(AVG(elongation)) elongation,STDDEV_SAMP(elongation)*10/AVG(elongation) elongation_CV,DATE(create_date) create_date
+		FROM p_se WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND se_status IN (0,41,42,43,44,45,46,47,48,49)
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),se_status) se
+		ON bs.batch_no=se.batch_no AND bs.line_no=se.line_no AND bs.all_status=se.se_status) bs1
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status,ROUND(AVG(boiling_water)) boiling_water,DATE(create_date) create_date
+		FROM p_bw WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND bw_status IN (0,41,42,43,44,45,46,47,48,49) 
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),bw_status) bw
+		ON bs1.batch_no=bw.batch_no AND bs1.line_no=bw.line_no AND bs1.all_status=bw.bw_status) bs2
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status,ROUND(AVG(oli_content)) oli_content,DATE(create_date) create_date
+		FROM p_oc WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} AND oc_status IN (0,41,42,43,44,45,46,47,48,49)
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),oc_status) oc
+		ON bs2.batch_no=oc.batch_no AND bs2.line_no=oc.line_no AND bs2.all_status=oc.oc_status) bs3
+		LEFT JOIN 
+		(SELECT batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,production_date,density_percent,ld_CV,water_ratio,ranges,create_date FROM p_ot
+		WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} GROUP BY batch_no,line_no,ot_status) ot
+		ON bs3.batch_no=ot.batch_no AND bs3.line_no=ot.line_no AND bs3.all_status=ot.ot_status) bs4
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status,ROUND(AVG(crimp_contraction)) crimp_contraction,ROUND(AVG(crimp_stability)) crimp_stability,DATE(create_date) create_date FROM p_cc
+		WHERE DATE(create_date) BETWEEN #{date1} AND #{date2} GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),pc_status) cc
+		ON bs4.batch_no=cc.batch_no AND bs4.line_no=cc.line_no AND bs4.all_status=cc.pc_status
+	</select>
+	
+	<!-- 查询某个时间段的所有批号 -->
+	<select id="findByStartAndEnd" parameterType="String" resultType="String">
+		SELECT batch_no FROM p_se 
+		WHERE se_status IN (0,41,42,43,44,45,46,47,48,49) AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no FROM p_oc 
+		WHERE oc_status IN (0,41,42,43,44,45,46,47,48,49) AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no FROM p_bw 
+		WHERE bw_status IN (0,41,42,43,44,45,46,47,48,49) AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no FROM p_cc 
+		WHERE pc_status IN (0,41,42,43,44,45,46,47,48,49) AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no FROM p_ot
+		WHERE ot_status IN (0,41,42,43,44,45,46,47,48,49) AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+	</select>
+	
+	<!-- 查询批号在某个月的数据 -->
+	<select id="findBatchNoData" parameterType="String" resultType="NyLon">
+		SELECT sobt.batch_no,sobt.line_no,sobt.se_format nl_format,sobt.se_status nl_status,sobt.strength,sobt.elongation,sobt.oli_content,sobt.boiling_water,sobt.yarnlevelness,sobt.linear_density,sobt.grid_line,cc.crimp_contraction,cc.crimp_stability,sobt.create_date FROM
+		(SELECT sob.batch_no,sob.line_no,sob.se_format,sob.se_status,sob.strength,sob.elongation,sob.oli_content,sob.boiling_water,ot.yarnlevelness,ot.linear_density,ot.grid_line,sob.create_date FROM
+		(SELECT so.batch_no,so.line_no,so.se_format,so.se_status,so.strength,so.elongation,so.oli_content,bw.boiling_water,so.create_date FROM
+		(SELECT se.batch_no,se.line_no,se.se_format,se.se_status,se.strength,se.elongation,oc.oli_content,se.create_date FROM
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_format,se_status,ROUND(AVG(strength)) strength,ROUND(AVG(elongation)) elongation,DATE(create_date) create_date
+		FROM p_se WHERE DATE(create_date)=#{month} AND se_status IN (0,41,42,43,44,45,46,47,48,49)
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),se_status) se
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status,ROUND(AVG(oli_content)) oli_content,DATE(create_date) create_date
+		FROM p_oc WHERE DATE(create_date)=#{month} AND oc_status IN (0,41,42,43,44,45,46,47,48,49)
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),oc_status) oc
+		ON se.batch_no=oc.batch_no AND se.line_no=oc.line_no AND se.se_status=oc.oc_status) so
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status,ROUND(AVG(boiling_water)) boiling_water,DATE(create_date) create_date
+		FROM p_bw WHERE DATE(create_date)=#{month} AND bw_status IN (0,41,42,43,44,45,46,47,48,49) 
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),bw_status) bw
+		ON so.batch_no=bw.batch_no AND so.line_no=bw.line_no AND so.se_status=bw.bw_status) sob
+		LEFT JOIN
+		(SELECT batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,create_date FROM p_ot
+		WHERE create_date=#{month} AND ot_status IN (0,41,42,43,44,45,46,47,48,49)) ot
+		ON sob.batch_no=ot.batch_no AND sob.line_no=ot.line_no AND sob.se_status=ot.ot_status) sobt
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status,ROUND(AVG(crimp_contraction)) crimp_contraction,ROUND(AVG(crimp_stability)) crimp_stability,DATE(create_date) create_date
+		FROM p_cc WHERE DATE(create_date)=#{month} AND pc_status IN (0,41,42,43,44,45,46,47,48,49)
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),pc_status)  cc
+		ON sobt.batch_no=cc.batch_no AND sobt.line_no=cc.line_no AND sobt.se_status=cc.pc_status WHERE sobt.batch_no=#{batchNo}
+	</select>
+	
+	<!-- 查询批号在某个时间段中的数据 -->
+	<select id="findBatchNoDataByStartAndEnd" parameterType="String" resultMap="nyLonSonMap">
+	SELECT bs.batch_no,bs.line_no,bs.all_status nl_status,DATE(bs.create_date) create_date,
+       IFNULL(se.se_format,'')          AS nl_format,
+       IFNULL(se.strength,'')           AS se_strength,
+       IFNULL(in_st.standard_value,0)   AS in_st_sv,
+       IFNULL(in_st.deviation_value,0)  AS in_st_dv,
+       CASE WHEN ABS(IFNULL(se.strength,'')-IFNULL(in_st.standard_value,0))-IFNULL(in_st.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_st_flag,    
+       IFNULL(se.strength_CV,'')        AS se_strength_cv,
+       IFNULL(in_stv.standard_value,0)   AS in_stv_sv,
+       IFNULL(in_stv.deviation_value,0)  AS in_stv_dv,
+       CASE WHEN ABS(IFNULL(se.strength_CV,'')-IFNULL(in_stv.standard_value,0))-IFNULL(in_stv.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_stv_flag,      
+       IFNULL(se.elongation,'')         AS se_elongation,
+       IFNULL(in_el.standard_value,0)   AS in_el_sv,
+       IFNULL(in_el.deviation_value,0)  AS in_el_dv,
+       CASE WHEN ABS(IFNULL(se.elongation,'')-IFNULL(in_el.standard_value,0))-IFNULL(in_el.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_el_flag,       
+       IFNULL(se.elongation_CV,'')      AS se_elongation_cv,
+       IFNULL(in_elv.standard_value,0)   AS in_el_sv,
+       IFNULL(in_elv.deviation_value,0)  AS in_el_dv,
+       CASE WHEN ABS(IFNULL(se.elongation_cv,'')-IFNULL(in_elv.standard_value,0))-IFNULL(in_elv.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_elv_flag,     
+       IFNULL(bw.boiling_water,'')      AS bw_boiling_water,
+       IFNULL(in_bo.standard_value,0)   AS in_el_sv,
+       IFNULL(in_bo.deviation_value,0)  AS in_el_dv,
+       CASE WHEN ABS(IFNULL(bw.boiling_water,'')-IFNULL(in_bo.standard_value,0))-IFNULL(in_bo.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_bo_flag,     
+       IFNULL(oc.oli_content,'')        AS oc_oli_content,
+       IFNULL(in_ol.standard_value,0)   AS in_ol_sv,
+       IFNULL(in_ol.deviation_value,0)  AS in_ol_dv,
+       CASE WHEN ABS(IFNULL(oc.oli_content,'')-IFNULL(in_ol.standard_value,0))-IFNULL(in_ol.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_ol_flag,         
+       IFNULL(ot.yarnlevelness,'')      AS ot_yarnlevelness ,
+       IFNULL(in_ye.standard_value,0)   AS in_ye_sv,
+       IFNULL(in_ye.deviation_value,0)  AS in_ye_dv,
+       CASE WHEN ABS(IFNULL(ot.yarnlevelness,'')-IFNULL(in_ye.standard_value,0))-IFNULL(in_ye.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_ye_flag,       
+       IFNULL(ot.linear_density,'')     AS ot_linear_density,
+       IFNULL(in_li.standard_value,0)   AS in_li_sv,
+       IFNULL(in_li.deviation_value,0)  AS in_li_dv,
+       CASE WHEN ABS(IFNULL(ot.linear_density,'')-IFNULL(in_li.standard_value,0))-IFNULL(in_li.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_li_flag,       
+       IFNULL(ot.grid_line,'')          AS ot_grid_line ,
+       IFNULL(in_gl.standard_value,0)   AS in_gl_sv,
+       IFNULL(in_gl.deviation_value,0)  AS in_gl_dv,
+       CASE WHEN ABS(IFNULL(ot.grid_line,'')-IFNULL(in_gl.standard_value,0))-IFNULL(in_gl.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_gli_flag,        
+       IFNULL(ot.production_date,'')    AS ot_production_date,
+         
+       IFNULL(ot.density_percent,'')    AS ot_density_percent,
+       IFNULL(in_de.standard_value,0)	AS in_de_cv,
+       IFNULL(in_de.deviation_value,0)	AS in_de_dv,
+       CASE WHEN ABS(IFNULL(ot.density_percent,'')-IFNULL(in_de.standard_value,0))-IFNULL(in_de.deviation_value,0)>0
+	    THEN 1
+	    ELSE 0
+       END  AS in_de_flag,
+           
+       IFNULL(ot.ld_CV,'')              AS ot_ld_cv,
+       IFNULL(in_ld.standard_value,0)   AS in_ld_sv,
+       IFNULL(in_ld.deviation_value,0)  AS in_ld_dv,
+       CASE WHEN ABS(IFNULL(ot.ld_CV,'')-IFNULL(in_ld.standard_value,0))-IFNULL(in_ld.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_de_flag, 
+       
+       IFNULL(ot.water_ratio,'')        AS ot_water_ratio,
+       IFNULL(in_wr.standard_value,0)   AS in_wr_sv,
+       IFNULL(in_wr.deviation_value,0)  AS in_wr_dv,
+       CASE WHEN ABS(IFNULL(ot.water_ratio,'')-IFNULL(in_wr.standard_value,0))-IFNULL(in_wr.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_wr_flag,       
+
+       IFNULL(ot.ranges,'')             AS ot_ranges,
+       IFNULL(cc.crimp_contraction,'')  AS cc_crimp_contraction,
+       IFNULL(in_cc.standard_value,0)   AS in_cc_sv,
+       IFNULL(in_cc.deviation_value,0)  AS in_cc_dv,
+       CASE WHEN ABS(IFNULL(cc.crimp_contraction,'')-IFNULL(in_cc.standard_value,0))-IFNULL(in_cc.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_cc_flag,
+       IFNULL(cc.crimp_stability,'')    AS cc_crimp_stability,
+       IFNULL(in_cs.standard_value,0)   AS in_cs_sv,
+       IFNULL(in_cs.deviation_value,0)  AS in_cs_dv,
+       CASE WHEN ABS(IFNULL(cc.crimp_stability,'')-IFNULL(in_cs.standard_value,0))-IFNULL(in_cs.deviation_value,0)>0
+            THEN 1
+            ELSE 0 
+       END  AS in_cs_flag
+
+	FROM
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status all_status,DATE(create_date) create_date 
+		FROM p_se 
+		WHERE se_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status all_status,DATE(create_date) create_date FROM p_oc 
+		WHERE oc_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status all_status,DATE(create_date) create_date FROM p_bw 
+		WHERE bw_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status all_status,DATE(create_date) create_date FROM p_cc 
+		WHERE pc_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		UNION
+		SELECT batch_no,line_no,ot_status all_status,create_date FROM p_ot 
+		WHERE ot_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND create_date&gt;='2017-08-01' AND create_date&lt;='2017-08-11') bs
+	LEFT OUTER JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status,
+		  se_format,ROUND(AVG(strength/100),2) strength,ROUND(STDDEV_SAMP(strength)/AVG(strength),2) strength_CV, ROUND(AVG(elongation)/10,1) elongation,ROUND(STDDEV_SAMP(elongation)*10/AVG(elongation),2) elongation_CV,DATE(create_date) create_date
+		FROM p_se 
+		WHERE se_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND 
+		      DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),se_status) se
+		ON bs.batch_no=se.batch_no AND bs.line_no=se.line_no AND bs.all_status=se.se_status
+	LEFT OUTER JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status,
+		  ROUND(AVG(boiling_water)/10,1) boiling_water,DATE(create_date) create_date
+		FROM p_bw 
+		WHERE bw_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND 
+		      DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end} 
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),bw_status) bw
+		ON bs.batch_no=bw.batch_no AND bs.line_no=bw.line_no AND bs.all_status=bw.bw_status
+	LEFT OUTER JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status,
+		  ROUND(AVG(oli_content)/100,2) oli_content,DATE(create_date) create_date
+		FROM p_oc 
+		WHERE oc_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND 
+		      DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end}
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),oc_status) oc
+		ON bs.batch_no=oc.batch_no AND bs.line_no=oc.line_no AND bs.all_status=oc.oc_status
+	LEFT OUTER JOIN 
+		(SELECT batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,
+		production_date,density_percent,ld_CV,water_ratio,ranges,create_date 
+		FROM p_ot
+		WHERE ot_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND 
+		      DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end} 
+		GROUP BY batch_no,line_no,ot_status) ot
+		ON bs.batch_no=ot.batch_no AND bs.line_no=ot.line_no AND bs.all_status=ot.ot_status
+	LEFT OUTER JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status,
+		  ROUND(AVG(crimp_contraction)/10,1) crimp_contraction,ROUND(AVG(crimp_stability)/10,1) crimp_stability,DATE(create_date) create_date 
+		FROM p_cc
+		WHERE pc_status IN (0,41,42,43,44,45,46,47,48,49) AND batch_no=#{batchNo} AND 
+		      DATE(create_date)&gt;=#{start} AND DATE(create_date)&lt;=#{end} 
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),pc_status) cc
+		ON (bs.batch_no=cc.batch_no AND bs.line_no=cc.line_no AND bs.all_status=cc.pc_status )
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='linear_density' AND batch_no=#{batchNo} ) in_li
+		ON bs.batch_no=in_li.batch_no	
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='density_percent' AND batch_no=#{batchNo}) in_de
+		ON (bs.batch_no=in_de.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='ld_CV' AND batch_no=#{batchNo}) in_ld
+		ON (bs.batch_no=in_ld.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='strength' AND batch_no=#{batchNo}) in_st
+		ON (bs.batch_no=in_st.batch_no)	
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='strength_CV' AND batch_no=#{batchNo}) in_stv
+		ON (bs.batch_no=in_stv.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='elongation' AND batch_no=#{batchNo}) in_el
+		ON (bs.batch_no=in_el.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='elongation_CV' AND batch_no=#{batchNo}) in_elv
+		ON(bs.batch_no=in_elv.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='yarnlevelness_U' AND batch_no=#{batchNo}) in_ye
+		ON(bs.batch_no=in_ye.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='boiling_water' AND batch_no=#{batchNo}) in_bo
+		ON (bs.batch_no=in_bo.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='crimp_contraction' AND batch_no=#{batchNo}) in_cc
+		ON(bs.batch_no=in_cc.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='crimp_stability' AND batch_no=#{batchNo}) in_cs
+		ON(bs.batch_no=in_cs.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='water_ratio' AND batch_no=#{batchNo}) in_wr
+		ON(bs.batch_no=in_wr.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='oli_content' AND batch_no=#{batchNo}) in_ol
+		ON (bs.batch_no=in_ol.batch_no)
+	LEFT OUTER JOIN 
+		(SELECT batch_no,check_index,standard_value,deviation_value
+		FROM p_index
+		WHERE check_index='grid_line' AND batch_no=#{batchNo})  in_gl
+		ON(bs.batch_no=in_gl.batch_no)
+	 ORDER BY create_date
+	</select>
+	
+	<resultMap type="NyLonSon" id="nyLonSonMap">
+		<id column="batch_no" property="batchNo"></id>
+		<id column="line_no" property="lineNo"></id>
+		<id column="create_date" property="createDate"></id>
+		
+		<result column="nl_format" property="nlFormat"/>
+		<result column="ot_linear_density" property="linearDensity"/>
+		<result column="ot_yarnlevelness" property="yarnlevelness"/>
+		<result column="se_strength" property="strength"/>
+		<result column="se_elongation" property="elongation"/>
+		<result column="cc_crimp_contraction" property="crimpContraction"/>
+		<result column="cc_crimp_stability" property="crimpStability"/>
+		<result column="bw_boiling_water" property="boilingWater"/>
+		<result column="oc_oli_content" property="oliContent"/>
+		<result column="ot_grid_line" property="gridLine"/>
+		<result column="ot_production_date" property="productionDate"/>
+		<result column="ot_density_percent" property="densityPercent"/>
+		<result column="ot_ld_cv" property="ldCV"/>
+		<result column="se_strength_cv" property="strengthCV"/>
+		<result column="se_elongation_cv" property="elongationCV"/>
+		<result column="ot_water_ratio" property="waterRatio"/>
+		<result column="ot_ranges" property="ranges"/>
+		
+		<result column="in_st_flag" property="inStFlag"/>
+		<result column="in_stv_flag" property="inStvFlag"/>
+		<result column="in_el_flag" property="inElFlag"/>
+		<result column="in_elv_flag" property="inElvFalg"/>
+		<result column="in_bo_flag" property="inBoFlag"/>
+		<result column="in_ol_flag" property="inOlFlag"/>
+		<result column="in_ye_flag" property="inYeFlag"/>
+		<result column="in_li_flag" property="inLiFlag"/>
+		<result column="in_gli_flag" property="inGliFalg"/>
+		<result column="in_de_flag" property="inDeFlag"/>
+		<result column="in_ld_flag" property="inLdFlag"/>
+		<result column="in_wr_flag" property="inWrFlag"/>
+		<result column="in_cc_flag" property="inCcFlag"/>
+		<result column="in_cs_flag" property="inCsFlag"/>
+	</resultMap>
+		
+	<select id="findCheckAgainNyLonByDate" parameterType="String" resultType="NyLon">
+		SELECT bs4.batch_no,bs4.line_no,bs4.all_status nl_status,bs4.se_format nl_format,bs4.strength,bs4.strength_CV,bs4.elongation,bs4.elongation_CV,bs4.boiling_water,bs4.oli_content,bs4.yarnlevelness,bs4.linear_density,bs4.grid_line,
+		bs4.production_date,bs4.density_percent,bs4.ld_CV,bs4.water_ratio,bs4.ranges,cc.crimp_contraction,cc.crimp_stability,DATE_FORMAT(bs4.create_date,'%Y-%m-%d') create_date FROM
+		(SELECT bs3.batch_no,bs3.line_no,bs3.all_status,bs3.se_format,bs3.strength,bs3.strength_CV,bs3.elongation,bs3.elongation_CV,bs3.boiling_water,bs3.oli_content,ot.yarnlevelness,ot.linear_density,ot.grid_line,
+		ot.production_date,ot.density_percent,ot.ld_CV,ot.water_ratio,ot.ranges,bs3.create_date FROM 
+		(SELECT bs2.batch_no,bs2.line_no,bs2.all_status,bs2.se_format,bs2.strength,bs2.strength_CV,bs2.elongation,bs2.elongation_CV,bs2.boiling_water,oc.oli_content,bs2.create_date FROM
+		(SELECT bs1.batch_no,bs1.line_no,bs1.all_status,bs1.se_format,bs1.strength,bs1.strength_CV,bs1.elongation,bs1.elongation_CV,bw.boiling_water,bs1.create_date FROM
+		(SELECT bs.batch_no,bs.line_no,bs.all_status,se.se_format,se.strength,se.strength_CV,se.elongation,se.elongation_CV,bs.create_date FROM
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status all_status,DATE(create_date) create_date FROM p_se 
+		WHERE se_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status all_status,DATE(create_date) create_date FROM p_oc 
+		WHERE oc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status all_status,DATE(create_date) create_date FROM p_bw 
+		WHERE bw_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status all_status,DATE(create_date) create_date FROM p_cc 
+		WHERE pc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,line_no,ot_status all_status,DATE(create_date) create_date FROM p_ot 
+		WHERE ot_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date}) bs
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status,se_format,ROUND(AVG(strength)) strength,STDDEV_SAMP(strength)/AVG(strength) strength_CV, ROUND(AVG(elongation)) elongation,STDDEV_SAMP(elongation)*10/AVG(elongation) elongation_CV,DATE(create_date) create_date
+		FROM p_se WHERE se_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date}
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),se_status) se
+		ON bs.batch_no=se.batch_no AND bs.line_no=se.line_no AND bs.all_status=se.se_status) bs1
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status,ROUND(AVG(boiling_water)) boiling_water,DATE(create_date) create_date
+		FROM p_bw WHERE bw_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date} 
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),bw_status) bw
+		ON bs1.batch_no=bw.batch_no AND bs1.line_no=bw.line_no AND bs1.all_status=bw.bw_status) bs2
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status,ROUND(AVG(oli_content)) oli_content,DATE(create_date) create_date
+		FROM p_oc WHERE oc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date}
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),oc_status) oc
+		ON bs2.batch_no=oc.batch_no AND bs2.line_no=oc.line_no AND bs2.all_status=oc.oc_status) bs3
+		LEFT JOIN 
+		(SELECT batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,production_date,density_percent,ld_CV,water_ratio,ranges,create_date FROM p_ot
+		WHERE ot_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date} GROUP BY batch_no,line_no,ot_status) ot
+		ON bs3.batch_no=ot.batch_no AND bs3.line_no=ot.line_no AND bs3.all_status=ot.ot_status) bs4
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status,ROUND(AVG(crimp_contraction)) crimp_contraction,ROUND(AVG(crimp_stability)) crimp_stability,DATE(create_date) create_date FROM p_cc
+		WHERE pc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1)=#{prefix} AND DATE(create_date)=#{date} GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),pc_status) cc
+		ON bs4.batch_no=cc.batch_no AND bs4.line_no=cc.line_no AND bs4.all_status=cc.pc_status
+	</select>
+	
+	<select id="findCheckAgainNyLonByDateAndPrefix" parameterType="String" resultType="NyLon">
+		SELECT bs4.batch_no,bs4.line_no,bs4.all_status nl_status,bs4.se_format nl_format,bs4.strength,bs4.strength_CV,bs4.elongation,bs4.elongation_CV,bs4.boiling_water,bs4.oli_content,bs4.yarnlevelness,bs4.linear_density,bs4.grid_line,
+		bs4.production_date,bs4.density_percent,bs4.ld_CV,bs4.water_ratio,bs4.ranges,cc.crimp_contraction,cc.crimp_stability,DATE_FORMAT(bs4.create_date,'%Y-%m-%d') create_date FROM
+		(SELECT bs3.batch_no,bs3.line_no,bs3.all_status,bs3.se_format,bs3.strength,bs3.strength_CV,bs3.elongation,bs3.elongation_CV,bs3.boiling_water,bs3.oli_content,ot.yarnlevelness,ot.linear_density,ot.grid_line,
+		ot.production_date,ot.density_percent,ot.ld_CV,ot.water_ratio,ot.ranges,bs3.create_date FROM 
+		(SELECT bs2.batch_no,bs2.line_no,bs2.all_status,bs2.se_format,bs2.strength,bs2.strength_CV,bs2.elongation,bs2.elongation_CV,bs2.boiling_water,oc.oli_content,bs2.create_date FROM
+		(SELECT bs1.batch_no,bs1.line_no,bs1.all_status,bs1.se_format,bs1.strength,bs1.strength_CV,bs1.elongation,bs1.elongation_CV,bw.boiling_water,bs1.create_date FROM
+		(SELECT bs.batch_no,bs.line_no,bs.all_status,se.se_format,se.strength,se.strength_CV,se.elongation,se.elongation_CV,bs.create_date FROM
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status all_status,DATE(create_date) create_date FROM p_se 
+		WHERE se_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status all_status,DATE(create_date) create_date FROM p_oc 
+		WHERE oc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status all_status,DATE(create_date) create_date FROM p_bw 
+		WHERE bw_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status all_status,DATE(create_date) create_date FROM p_cc 
+		WHERE pc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date}
+		UNION
+		SELECT batch_no,line_no,ot_status all_status,DATE(create_date) create_date FROM p_ot 
+		WHERE ot_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date}) bs
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,se_status,se_format,ROUND(AVG(strength)) strength,STDDEV_SAMP(strength)/AVG(strength) strength_CV, ROUND(AVG(elongation)) elongation,STDDEV_SAMP(elongation)*10/AVG(elongation) elongation_CV,DATE(create_date) create_date
+		FROM p_se WHERE se_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date}
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),se_status) se
+		ON bs.batch_no=se.batch_no AND bs.line_no=se.line_no AND bs.all_status=se.se_status) bs1
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,bw_status,ROUND(AVG(boiling_water)) boiling_water,DATE(create_date) create_date
+		FROM p_bw WHERE bw_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date} 
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),bw_status) bw
+		ON bs1.batch_no=bw.batch_no AND bs1.line_no=bw.line_no AND bs1.all_status=bw.bw_status) bs2
+		LEFT JOIN 
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,oc_status,ROUND(AVG(oli_content)) oli_content,DATE(create_date) create_date
+		FROM p_oc WHERE oc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date}
+		GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),oc_status) oc
+		ON bs2.batch_no=oc.batch_no AND bs2.line_no=oc.line_no AND bs2.all_status=oc.oc_status) bs3
+		LEFT JOIN 
+		(SELECT batch_no,line_no,ot_status,yarnlevelness,linear_density,grid_line,production_date,density_percent,ld_CV,water_ratio,ranges,create_date FROM p_ot
+		WHERE ot_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date} GROUP BY batch_no,line_no,ot_status) ot
+		ON bs3.batch_no=ot.batch_no AND bs3.line_no=ot.line_no AND bs3.all_status=ot.ot_status) bs4
+		LEFT JOIN
+		(SELECT batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1) line_no,pc_status,ROUND(AVG(crimp_contraction)) crimp_contraction,ROUND(AVG(crimp_stability)) crimp_stability,DATE(create_date) create_date FROM p_cc
+		WHERE pc_status IN (21,22,23,24,25,26,26,28,29,31,32,33,34,35,36,37,38,39) AND SUBSTRING(batch_no,1,1) NOT IN (#{fp},#{sp},#{tp}) AND DATE(create_date)=#{date} GROUP BY batch_no,SUBSTRING(line_no,1,INSTR(line_no,'-')-1),pc_status) cc
+		ON bs4.batch_no=cc.batch_no AND bs4.line_no=cc.line_no AND bs4.all_status=cc.pc_status
+	</select>
+</mapper>
