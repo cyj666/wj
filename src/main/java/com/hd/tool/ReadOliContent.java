@@ -296,9 +296,9 @@ public class ReadOliContent {
 		String[] result = str.split("-"); // 根据“—”拆分
 
 		String pattern1 = "^[A-Z]{3}[0-9A-Z]{8}$*"; // 表示含油率批号的前八位数字的正则表达式
-		String pattern2 = "^[2-4]{1}$*"; // 表示含油率批号‘—’后的第一位数字
-		String pattern4 = "^[0-1]{1}$*"; // 特殊情况
-		String pattern3 = "^[0-9]{1}$*"; // 表示含油率批号‘—’后的第二位数字
+		String pattern2 = "^[1-4]{1}$*"; // 表示含油率批号‘—’后的第一位数字
+		String pattern4 = "^[0]$*"; // 特殊情况
+		String pattern3 = "^[1-9]{1}$*"; // 表示含油率批号‘—’后的第二位数字
 
 		is1 = Pattern.matches(pattern1, result[0]);
 
