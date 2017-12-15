@@ -67,6 +67,8 @@ public class ReadStrElongation {
 				String line = null;
 				// 定义有多少数据的行数
 				int totalLine = 0;
+				//机器检测的次数
+				int testNum = 0;
 
 				// 创建一个集合用来存储有效的行
 				List<String> lineList = new ArrayList<String>();
@@ -98,6 +100,8 @@ public class ReadStrElongation {
 					} else if (index == 2) {
 						// 获得有用的数据的管数
 						totalLine = Integer.parseInt(line.split(",")[4]);
+						// 获取机器检测的次数
+						testNum = Integer.parseInt(line.split(",")[3]);
 					} else if (index == 3) {
 						String[] dataLine = line.split(",");
 						//获取时间
@@ -131,26 +135,27 @@ public class ReadStrElongation {
 							batchNo = batchNoLine;
 						}
 						format = formatLine.substring(1, formatLine.lastIndexOf("\"")).trim();
-					} else if (index >= 4 + totalLine + totalLine * 2) {
+					} else if (index >= 4 + totalLine + totalLine * testNum) {
 						break;
 					}else {
 						//文件的前4行不含数据
 						int startLine = 4;
 						//倍数
-						int multiple = 2;
+						//int multiple = 2;
 						//加数
-						int addend = 2;
-						for (int j = startLine + totalLine; j < startLine + totalLine + totalLine * multiple; j += addend) {
-							if (index == j || index == j + 1) {
+						//int addend = 2;
+						for (int j = startLine + totalLine; j < startLine + totalLine + totalLine * testNum; j += testNum) {
+							if (index >= j && index < j+testNum) {
+								System.out.println(index);
 								i++;
 								lineList.add(line);
-								if(i==2) {
+								if (i == testNum) {
 									//设置创建时间
 									se.setCreateDate(dataTime);
 									//设置产品批号
 									se.setBatchNo(batchNo);
 									//将有用的行数据进行处理
-									dataList = getSe(lineList);
+									dataList = getSe(lineList, testNum);
 									//强度
 									se.setStrength(dataList.get(0));
 									//伸长率
@@ -170,7 +175,7 @@ public class ReadStrElongation {
 								}
 							}
 						}
-						if (index == 3 + totalLine + totalLine * 2) {
+						if (index == 3 + totalLine + totalLine * testNum) {
 							if (lineNoList.size() == seMiddleList.size()) {
 								for (String lineNo : lineNoList) {
 									i++;
@@ -217,33 +222,33 @@ public class ReadStrElongation {
 	 * @param 存储的行数据
 	 * @return 处理之后的有用数据
 	 */
-	private static List<Integer> getSe(List<String> lineList) {
-		double l1 = 0;double l2 = 0;double l3 = 0;double l4 = 0;
-		
+	private static List<Integer> getSe(List<String> lineList, int testNum) {
+		double strength = 0;double elongation = 0;
+		boolean flag = true;
 		String reg = "^[0-9]{1,2}(\\.[0-9]{1,6}){0,1}$";
 		
 		List<Integer> list = new ArrayList<Integer>();
 
 		String[] lineArray = lineList.toArray(new String[lineList.size()]);
 		//遍历数组中的数据
-		for(int i=0; i<lineArray.length; i++) {
-			if(i%2==0) {
-				if(lineArray[i].split(",").length!=9 || lineArray[i+1].split(",").length!=9 
-						|| !lineArray[i].split(",")[3].matches(reg) || !lineArray[i].split(",")[2].matches(reg)
-						|| !lineArray[i+1].split(",")[3].matches(reg) || !lineArray[i+1].split(",")[2].matches(reg)) {
-					list.add(0);list.add(0);
-				}else {
-					l1 = Double.parseDouble(lineArray[i].split(",")[3])*100;
-					l2 = Double.parseDouble(lineArray[i+1].split(",")[3])*100;
-					
-					l3 = Double.parseDouble(lineArray[i].split(",")[2])*10;
-					l4 = Double.parseDouble(lineArray[i+1].split(",")[2])*10;
-					
-					//将数据添加到集合中		取得所有整数部分，根据整数的大小来看是四舍五入还是五舍六入
-					list.add(Integer.parseInt(new DecimalFormat("#").format((l1+l2)/2)));
-					list.add(Integer.parseInt(new DecimalFormat("#").format((l3+l4)/2)));
-				}
+		for (int i = 0; i < lineArray.length; i++) {
+			if(lineArray[i].split(",").length!=9 || !lineArray[i].split(",")[3].matches(reg) || 
+					!lineArray[i].split(",")[2].matches(reg)) {
+				flag = false;
+			}else {
+				//强度相加
+				strength += Double.parseDouble(lineArray[i].split(",")[3])*100;
+				//伸长率相加
+				elongation += Double.parseDouble(lineArray[i].split(",")[2])*10;
 			}
+		}
+		if (flag) {
+			//将数据添加到集合中		取得所有整数部分，根据整数的大小来看是四舍五入还是五舍六入
+			list.add(Integer.parseInt(new DecimalFormat("#").format(strength/testNum)));
+			list.add(Integer.parseInt(new DecimalFormat("#").format(elongation/testNum)));
+		} else {
+			//不符合格式的数据置零
+			list.add(0); list.add(0);
 		}
 		return list;
 	}
@@ -380,7 +385,7 @@ public class ReadStrElongation {
 //			System.out.println(key + " : " + fileMap.get(key));
 //		}
 //		
-//		System.out.println(checkBatchNo("DAS3284323"));
+//		//System.out.println(checkBatchNo("DAS3284323"));
 //	}
 	
 }
