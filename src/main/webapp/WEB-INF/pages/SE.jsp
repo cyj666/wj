@@ -149,7 +149,7 @@ div.content {
 										<c:when test="${seList.get(i).seStatus==0 }"><p class="text-success" style="margin: 0"><b>日常取样丝</b></p></c:when>
 									</c:choose>
 									<c:choose>
-										<c:when test="${seList.get(i).seStatus==1 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
+										<c:when test="${seList.get(i).seStatus>10 && seList.get(i).seStatus<20 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
 									</c:choose>
 									<c:choose>
 										<c:when test="${seList.get(i).seStatus>20 && seList.get(i).seStatus<30 }"><p class="text-primary" style="margin: 0"><b>开纺&nbsp;/&nbsp;改纺</b></p></c:when>

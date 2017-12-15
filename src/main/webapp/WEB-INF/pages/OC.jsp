@@ -150,7 +150,7 @@ body {
 										<c:when test="${ocList.get(i).ocStatus==0 }"><p class="text-success" style="margin: 0"><b>日常取样丝</b></p></c:when>
 									</c:choose>
 									<c:choose>
-										<c:when test="${ocList.get(i).ocStatus==1 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
+										<c:when test="${ocList.get(i).ocStatus>10 && ocList.get(i).ocStatus<20 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
 									</c:choose>
 									<c:choose>
 										<c:when test="${ocList.get(i).ocStatus>20 && ocList.get(i).ocStatus<30 }"><p class="text-primary" style="margin: 0"><b>开纺&nbsp;/&nbsp;改纺</b></p></c:when>
