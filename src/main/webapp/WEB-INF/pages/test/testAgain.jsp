@@ -83,7 +83,7 @@ body{
 											<c:when test="${ocList.get(i).ocStatus==0 }"><p class="text-success" style="margin: 0"><b>日常取样丝</b></p></c:when>
 										</c:choose>
 										<c:choose>
-											<c:when test="${ocList.get(i).ocStatus==1 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
+											<c:when test="${ocList.get(i).ocStatus>10 && ocList.get(i).ocStatus<20}"><p class="text-danger" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
 										</c:choose>
 									</td>
 									<td>${ocList.get(i).createDate }</td>
@@ -127,7 +127,7 @@ body{
 											<c:when test="${seList.get(i).seStatus==0 }"><p class="text-success" style="margin: 0"><b>日常取样丝</b></p></c:when>
 										</c:choose>
 										<c:choose>
-											<c:when test="${seList.get(i).seStatus==1 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
+											<c:when test="${seList.get(i).seStatus>10 && seList.get(i).seStatus<20 }"><p class="text-danger" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
 										</c:choose>
 									</td>
 									<td>${seList.get(i).createDate }</td>
@@ -169,7 +169,7 @@ body{
 											<c:when test="${pcList.get(i).pcStatus==0 }"><p class="text-success" style="margin: 0"><b>日常取样丝</b></p></c:when>
 										</c:choose>
 										<c:choose>
-											<c:when test="${pcList.get(i).pcStatus==1 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
+											<c:when test="${pcList.get(i).pcStatus>10 && pcList.get(i).pcStatus<20 }"><p class="text-danger" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
 										</c:choose>
 									</td>
 									<td>${pcList.get(i).createDate }</td>
@@ -209,7 +209,7 @@ body{
 											<c:when test="${bwList.get(i).bwStatus==0 }"><p class="text-success" style="margin: 0"><b>日常取样丝</b></p></c:when>
 										</c:choose>
 										<c:choose>
-											<c:when test="${bwList.get(i).bwStatus==1 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
+											<c:when test="${bwList.get(i).bwStatus>10 && bwList.get(i).bwStatus<20}"><p class="text-danger" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
 										</c:choose>
 									</td>
 									<td>${bwList.get(i).createDate }</td>
@@ -277,15 +277,41 @@ $(function(){
 	});
 	
 	
-	var totalLine;
+	//页面中日常取样丝的个数
+	var totalLine = 0;
+	
 	if (testValue == 0) {
-		totalLine = $('.ocOperate .checked').last().val();
+		$('.ocOperate').each(function(i) {
+			if ($(this).find('p').text().trim() === "日常取样丝") {
+				console.log($(this).find('p').text().trim());
+				totalLine++;
+				console.log(totalLine);
+			};
+		});
 	} else if (testValue == 1) {
-		totalLine = $('.seOperate .checked').last().val();
+		$('.seOperate').each(function(i) {
+			if ($(this).find('p').text().trim() === "日常取样丝") {
+				console.log($(this).find('p').text().trim());
+				totalLine++;
+				console.log(totalLine);
+			};
+		});
 	} else if (testValue == 2) {
-		totalLine = $('.pcOperate .checked').last().val();
+		$('.pcOperate').each(function(i) {
+			if ($(this).find('p').text().trim() === "日常取样丝") {
+				console.log($(this).find('p').text().trim());
+				totalLine++;
+				console.log(totalLine);
+			};
+		});
 	} else if (testValue == 3) {
-		totalLine = $('.bwOperate .checked').last().val();
+		$('.bwOperate').each(function(i) {
+			if ($(this).find('p').text().trim() === "日常取样丝") {
+				console.log($(this).find('p').text().trim());
+				totalLine++;
+				console.log(totalLine);
+			};
+		});
 	}
 	
 	//删除请求
@@ -295,7 +321,8 @@ $(function(){
 		$('.checked:checked').each(function(i) {
 			indexArr.push($(this).val()-1);
 		});
-		if (indexArr.length != totalLine/2) {
+
+		if ($('.checked:not(:checked)').length != totalLine) {
 			layer.alert("请选全要删除的数据", {
 				icon: 2,
 				skin: 'layui-layer-lan',//样式类名
@@ -352,45 +379,14 @@ $(function(){
 		var next = currentObj.next().children().first().children().first();
 		
 		//console.log(first.val());
-		if (first.val() % 2 == 0) {
-			if (prev.is(":checked")) {
-				layer.alert("两条数据只能选择一条", {
-					icon: 5,
-					skin: 'layui-layer-lan',//样式类名
-					closeBtn: 1
-					}
-				);
-			} else {
-				//console.log(color);
-				if (first.is(":checked")) {
-					currentObj.removeClass("active");
-					currentObj.addClass(color);
-					first.removeAttr("checked");
-				} else {
-					currentObj.removeClass(color);
-					currentObj.addClass("active");
-					first.attr("checked", true);
-				}
-			}
+		if (first.is(":checked")) {
+			currentObj.addClass(color);
+			currentObj.removeClass("active");
+			first.removeAttr("checked");
 		} else {
-			if (next.is(":checked")) {
-				layer.alert("两条数据只能选择一条", {
-					icon: 5,
-					skin: 'layui-layer-lan',//样式类名
-					closeBtn: 1
-					}
-				);
-			} else {
-				if (first.is(":checked")) {
-					currentObj.addClass(color);
-					currentObj.removeClass("active");
-					first.removeAttr("checked");
-				} else {
-					currentObj.addClass("active");
-					currentObj.removeClass(color);
-					first.attr("checked", true);
-				}
-			}
+			currentObj.addClass("active");
+			currentObj.removeClass(color);
+			first.attr("checked", true);
 		}
 	}
 });

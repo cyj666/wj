@@ -4,6 +4,7 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.hd.mapper.SeMapper">
 
+	<!-- 保存数据 -->
 	<insert id="saveSe">
 		insert into p_se(batch_no,line_no,se_format,strength,elongation,se_status,create_date) values
 		<foreach collection="seList" item="se" separator=",">
@@ -19,30 +20,35 @@
 		</foreach>
 	</insert>
 	
+	<!-- 根据批号、线位号和日期查询有多少数据 -->
 	<select id="findOneByBatchNoLineNoAndCreateDate" resultType="Integer">
 		select count(*) from p_se where batch_no=#{batchNo} and line_no=#{lineNo} and create_date=#{createDate}
 	</select>
 	
+	<!-- 查询对应复测数据和日常丝数据 -->
 	<select id="findSomeByCreateDate" parameterType="StrElongation" resultType="StrElongation">
 		SELECT se1.batch_no,se1.line_no,se1.se_format,se1.se_status,se1.strength,se1.elongation,DATE_FORMAT(se1.create_date, '%Y-%m-%d %T') create_date FROM 
 		(SELECT batch_no,line_no,se_format,se_status,strength,elongation,create_date FROM p_se 
 		WHERE se_status=0 AND DATE(create_date)=#{createDate}) se1,
-		(SELECT batch_no,line_no FROM p_se WHERE se_status=1 AND DATE(create_date)=#{createDate}) se2
+		(SELECT batch_no,line_no FROM p_se WHERE (se_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}) se2
 		WHERE se1.batch_no=se2.batch_no AND se1.line_no=se2.line_no
 		UNION
 		SELECT batch_no,line_no,se_format,se_status,strength,elongation,create_date FROM p_se 
-		WHERE se_status=1 AND DATE(create_date)=#{createDate}
+		WHERE (se_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}
 		ORDER BY batch_no,line_no,se_status
 	</select>
 	
+	<!-- 删除不要的复测数据 -->
 	<delete id="deleteStrElongation">
 		DELETE FROM p_se WHERE batch_no=#{batchNo} AND line_no=#{lineNo} AND create_date=#{createDate}
 	</delete>
 	
+	<!-- 将保留的到强伸表的复测丝状态变为0 -->
 	<update id="updateStrElongation">
 		UPDATE p_se SET se_status=0 WHERE batch_no=#{batchNo} AND line_no=#{lineNo} AND create_date=#{createDate}
 	</update>
 	
+	<!-- 将删除的复测强伸数据保存到另外一张表 -->
 	<insert id="saveDeleteStrElongation">
 		insert into p_se_at(batch_no,line_no,se_format,strength,elongation,se_status,create_date) values
 		<foreach collection="seDelList" item="se" separator=",">
