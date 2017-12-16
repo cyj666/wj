@@ -145,7 +145,7 @@ body {
 										<c:when test="${pcList.get(i).pcStatus==0 }"><p class="text-success" style="margin: 0"><b>日常取样丝</b></p></c:when>
 									</c:choose>
 									<c:choose>
-										<c:when test="${pcList.get(i).pcStatus==1 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
+										<c:when test="${pcList.get(i).pcStatus>10 && pcList.get(i).pcStatus<20 }"><p class="text-info" style="margin: 0"><b>复&nbsp;测&nbsp;丝</b></p></c:when>
 									</c:choose>
 									<c:choose>
 										<c:when test="${pcList.get(i).pcStatus>20 && pcList.get(i).pcStatus<30 }"><p class="text-primary" style="margin: 0"><b>开纺&nbsp;/&nbsp;改纺</b></p></c:when>

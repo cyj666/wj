@@ -382,8 +382,7 @@ public class ReadPercentCrimp {
 			String batchNo = batchNoLine.substring(0, batchNoLine.indexOf("-"));
 			//System.out.println(batchNo);
 			String status = batchNoLine.substring(batchNoLine.indexOf("-")+1);
-			if (batchNo.matches(reg) && (status.matches("[0-1]{1}") 
-					|| status.matches("[2-4]{1}[1-9]{1}"))) {
+			if (batchNo.matches(reg) && status.matches("[1-4]{1}[1-9]{1}")) {
 				return true;
 			} else {
 				return false;

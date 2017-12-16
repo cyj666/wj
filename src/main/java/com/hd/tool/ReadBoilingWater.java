@@ -180,7 +180,7 @@ public class ReadBoilingWater {
 				}
 				//判断线位号数量与对应的数据数量是否一致
 				if (middleBWList.size() != middleLineNoList.size()) {
-					fileNameMap.put(fileName, "线位号、批号与数据不对应");
+					fileNameMap.put(fileName, "线位号与数据不对应");
 					continue;
 				}
 				
@@ -205,10 +205,21 @@ public class ReadBoilingWater {
 						//含有多个批号
 						String[] batchNoArr = batchNoGroup.split(",");
 						List<String> lineNoList = getLineNoList(lineNoGroup);
+						
+						//批号的数量
+						int batchNoNum = batchNoArr.length;
+						//不同线的数量
+						int lineNoNum = lineNoGroup.split("/").length;
+						if (batchNoNum != lineNoNum) {
+							fileNameMap.put(fileName, "线位号与批号不对应");
+							continue;
+						}
+						
 						List<String> pxsList = getAllList(batchNoArr, lineNoList);
 						allList.addAll(pxsList);
-						
-					} else {
+					}
+					
+					if (!batchNoGroup.contains(",")) {
 						//只含有一个批号
 						List<String> lineNoList = getLineNoList(lineNoGroup);
 						String batchNo = null;
@@ -264,7 +275,7 @@ public class ReadBoilingWater {
 		int index = 0;
 		String lineNo1 = lineNoList.get(0);
 		String prefix = lineNo1.substring(0, lineNo1.indexOf("-"));
-		
+		//存放批号，线位号，状态的集合
 		List<String> allList = new ArrayList<String>();
 		for (String lineNo : lineNoList) {
 			//跟集合前一个线位号的前缀比较看是否一致
@@ -456,8 +467,8 @@ public class ReadBoilingWater {
 	 */
 	private static boolean checkBatchNo(String[] batchNos) {
 		//定义正则表达式   最多能输8个批号
-		String reg = "^[A-Z]{3}[A-Z0-9]{8}(-[1-4]{1}[1-9]?)?"
-				+ "(,[A-Z]{3}[A-Z0-9]{8}(-[1-4]{1}[1-9]?)?){0,7}$";
+		String reg = "^[A-Z]{3}[A-Z0-9]{8}(-[1-4]{1}[1-9])?"
+				+ "(,[A-Z]{3}[A-Z0-9]{8}(-[1-4]{1}[1-9])?){0,7}$";
 		
 		//定义boolean中间参数
 		boolean flag = false;
