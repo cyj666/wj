@@ -109,7 +109,7 @@ body {
 								<c:when test="${msg==1}">
 								<span class="glyphicon glyphicon-remove danger"></span>上传文件的格式不对</c:when>
 								<c:when test="${msg==2}">
-								<span class="glyphicon glyphicon-remove danger"></span>没有文件可读</c:when>
+								<span class="glyphicon glyphicon-remove danger"></span>没有上传文件或者读取文件过程中有错</c:when>
 								<c:when test="${msg==3}">
 								<span class="glyphicon glyphicon-ok success"></span>数据读取成功</c:when>
 								<c:when test="${msg==4}">
