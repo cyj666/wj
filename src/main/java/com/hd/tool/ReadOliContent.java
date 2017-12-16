@@ -14,6 +14,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.hd.pojo.OliContent;
 
 /**
@@ -33,9 +35,11 @@ public class ReadOliContent {
 	public static Map<Integer, List<?>> readOcTxt(String path, String date1) throws Exception {
 		// //解压后文件的存饭路径以及即将要读取文件的路径
 		// String filePath = "E:/project/out/";
-		if (path == null) {
+		//判断路径存不存在
+		if (StringUtils.isEmpty(path)) {
 			return null;
 		}
+		
 		File file = new File(path);
 		// 判断文件是否存在
 		if (!file.exists()) {

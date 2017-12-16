@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.hd.pojo.PercentCrimp;
 
 /**
@@ -27,6 +29,12 @@ public class ReadPercentCrimp {
 	 * @throws Exception
 	 */
 	public static Map<Integer, Object> readPCTxt(String path) throws Exception { 
+		
+		//判断路径存不存在
+		if (StringUtils.isEmpty(path)) {
+			return null;
+		}
+		
 		File file = new File(path);
 		//判断文件是否存在
 		if(!file.exists()) {
