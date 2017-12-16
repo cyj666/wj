@@ -25,11 +25,11 @@
 		SELECT oc1.batch_no,oc1.line_no,oc1.oc_status,oc1.oli_content,DATE_FORMAT(oc1.create_date, '%Y-%m-%d %T') create_date FROM 
 		(SELECT batch_no,line_no,oc_status,oli_content,create_date FROM p_oc
 		WHERE oc_status=0 AND DATE(create_date)=#{createDate}) oc1,
-		(SELECT batch_no,line_no FROM p_oc WHERE oc_status=1 AND DATE(create_date)=#{createDate}) oc2
+		(SELECT batch_no,line_no FROM p_oc WHERE (oc_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}) oc2
 		WHERE oc1.batch_no=oc2.batch_no AND oc1.line_no=oc2.line_no
 		UNION
 		SELECT batch_no,line_no,oc_status,oli_content,create_date FROM p_oc 
-		WHERE oc_status=1 AND DATE(create_date)=#{createDate}
+		WHERE (oc_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}
 		ORDER BY batch_no,line_no,oc_status
 	</select>
 	

@@ -26,11 +26,11 @@
 		SELECT pc1.batch_no,pc1.line_no,pc1.pc_status,pc1.crimp_contraction,pc1.crimp_stability,DATE_FORMAT(pc1.create_date, '%Y-%m-%d %T') create_date FROM 
 		(SELECT batch_no,line_no,pc_status,crimp_contraction,crimp_stability,create_date FROM p_cc
 		WHERE pc_status=0 AND DATE(create_date)=#{createDate}) pc1,
-		(SELECT batch_no,line_no FROM p_cc WHERE pc_status=1 AND DATE(create_date)=#{createDate}) pc2
+		(SELECT batch_no,line_no FROM p_cc WHERE (pc_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}) pc2
 		WHERE pc1.batch_no=pc2.batch_no AND pc1.line_no=pc2.line_no
 		UNION
 		SELECT batch_no,line_no,pc_status,crimp_contraction,crimp_stability,create_date FROM p_cc 
-		WHERE pc_status=1 AND DATE(create_date)=#{createDate}
+		WHERE (pc_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}
 		ORDER BY batch_no,line_no,pc_status;
 	</select>
 	

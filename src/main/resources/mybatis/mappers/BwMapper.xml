@@ -25,11 +25,11 @@
 		SELECT bw1.batch_no,bw1.line_no,bw1.bw_status,bw1.boiling_water,DATE_FORMAT(bw1.create_date, '%Y-%m-%d %T') create_date FROM 
 		(SELECT batch_no,line_no,bw_status,boiling_water,create_date FROM p_bw 
 		WHERE bw_status=0 AND DATE(create_date)=#{createDate}) bw1,
-		(SELECT batch_no,line_no FROM p_bw WHERE bw_status=1 AND DATE(create_date)=#{createDate}) bw2
+		(SELECT batch_no,line_no FROM p_bw WHERE (bw_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}) bw2
 		WHERE bw1.batch_no=bw2.batch_no AND bw1.line_no=bw2.line_no
 		UNION
 		SELECT batch_no,line_no,bw_status,boiling_water,DATE_FORMAT(create_date, '%Y-%m-%d %T') FROM p_bw 
-		WHERE bw_status=1 AND DATE(create_date)=#{createDate}
+		WHERE (bw_status BETWEEN 11 AND 19) AND DATE(create_date)=#{createDate}
 		ORDER BY batch_no,line_no,bw_status;
 	</select>
 	
