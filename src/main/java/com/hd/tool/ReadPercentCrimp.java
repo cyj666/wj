@@ -123,7 +123,7 @@ public class ReadPercentCrimp {
 							}
 							break;
 						}
-						//处理数据,获取含油线位号的集合
+						//处理数据,获取含有线位号的集合
 						middleLineNoList = getLineNoList(lineNos);
 					}else if(index>=9 && index<10+endNum1-startNum1) {
 						if(endNum1>0 && startNum1>0) {
