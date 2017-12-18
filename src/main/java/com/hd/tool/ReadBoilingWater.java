@@ -247,7 +247,7 @@ public class ReadBoilingWater {
 			}
 			
 			//遍历存放BoilingWater对象的集合，并且给每个对象设置三个属性批号、线位号和状态
-			if (!middleBWList.isEmpty() && !allList.isEmpty()) {
+			if (fileNameMap.isEmpty() && !middleBWList.isEmpty() && !allList.isEmpty()) {
 				for (int i = 0; i < middleBWList.size(); i++) {
 					BoilingWater bw1 = middleBWList.get(i);
 					//包含批号，线位号和状态这三种数据
