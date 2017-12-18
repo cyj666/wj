@@ -206,7 +206,7 @@ public class ReadBoilingWater {
 			if (!middleBatchNoMap.isEmpty() && !middleLineNoList.isEmpty()) {
 				
 				if (middleBatchNoMap.size() != middleLineNoMap.size()) {
-					fileNameMap.put(fileName, "批号或者线位号没有输");
+					fileNameMap.put(fileName, "批号、线位号没有输或者没对上");
 					continue;
 				}
 				

@@ -197,8 +197,8 @@ public class ReadPercentCrimp {
 						count++;
 					}
 					//判断批号的数量与线位号的位不同数量是否一致
-					if (count > middleBatchNoList.size()) {
-						fileNameMap.put(fileName, "批号或者线位号不能为空");
+					if (count > middleBatchNoList.size()-1) {
+						fileNameMap.put(fileName, "批号、线位号没有输或者没对上");
 						continue;
 					}
 					
