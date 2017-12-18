@@ -204,6 +204,12 @@ public class ReadBoilingWater {
 			List<String> allList = new ArrayList<String>();
 			
 			if (!middleBatchNoMap.isEmpty() && !middleLineNoList.isEmpty()) {
+				
+				if (middleBatchNoMap.size() != middleLineNoMap.size()) {
+					fileNameMap.put(fileName, "批号或者线位号没有输");
+					continue;
+				}
+				
 				for (Integer key : middleBatchNoMap.keySet()) {
 					//获取的一组批号和线位号
 					String batchNoGroup = middleBatchNoMap.get(key);
@@ -260,13 +266,6 @@ public class ReadBoilingWater {
 			bwList.addAll(middleBWList);
 		}
 		
-//		for (BoilingWater bw : bwList) {
-//			System.out.println(bw);
-//		}
-		
-//		for (String fileName : fileNameMap.keySet()) {
-//			System.out.println(fileName + " : " + fileNameMap.get(fileName));
-//		}
 		map.put(1, bwList);
 		map.put(2, fileNameMap);
 		
