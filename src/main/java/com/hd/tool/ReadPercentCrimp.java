@@ -193,10 +193,11 @@ public class ReadPercentCrimp {
 				for (int i = 0; i < middleLineNoList.size(); i++) {
 					//判断当前的线位号与之前的线位号是否一样
 					if (!middleLineNoList.get(i).contains(prefixs)) {
+						prefixs = middleLineNoList.get(i).substring(0, middleLineNoList.get(i).indexOf("-"));
 						count++;
 					}
 					//判断批号的数量与线位号的位不同数量是否一致
-					if (count > middleBatchNoList.size()-1) {
+					if (count > middleBatchNoList.size()) {
 						fileNameMap.put(fileName, "批号或者线位号不能为空");
 						continue;
 					}
