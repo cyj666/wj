@@ -117,6 +117,12 @@ public class ReadOliContent {
 									} else {
 
 										Map<String, String> batchMap = checkBatchNo(batchNoLine); // 调用方法进行验证
+										boolean isLineNo = checkLineNo(LineNo);
+										if (!isLineNo) {
+											err =  "在" + fileName + "中的第" + lineCounts + "行可能出现错误" +"(线位号："+LineNo+")";
+											errList.add(err);
+											map.put(2, errList);
+										}
 										String msg1 = batchMap.get("msg1");
 										String msg2 = batchMap.get("msg2");
 										String msg3 = batchMap.get("msg3");
@@ -374,6 +380,9 @@ public class ReadOliContent {
 		
 	}
 	
+	/*public static void main(String[] args) {
+		System.out.println(checkLineNo("DTY-1"));
+	}*/
 	
 	/**
 	 * 将前台传入的日期值进行去0处理，便于后台与数据库中的值进行匹配（2017-01-01 => 2017-1-1)

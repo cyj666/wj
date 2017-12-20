@@ -2,6 +2,20 @@ package com.hd.pojo;
 
 public class NyLonSon extends NyLon {
 	
+	public NyLonSon() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public NyLonSon(String batchNo, String createDate, String lineNo, String nlFormat, Double linearDensity,
+			Double yarnlevelness, Double strength, Double elongation, Double crimpContraction, Double crimpStability,
+			Double boilingWater, Double oliContent, Integer gridLine, Integer nlStatus, String productionDate,
+			Double densityPercent, Double ldCV, Double strengthCV, Double elongationCV, Double waterRatio,
+			String ranges) {
+		super(batchNo, createDate, lineNo, nlFormat, linearDensity, yarnlevelness, strength, elongation, crimpContraction,
+				crimpStability, boilingWater, oliContent, gridLine, nlStatus, productionDate, densityPercent, ldCV, strengthCV,
+				elongationCV, waterRatio, ranges);
+		// TODO Auto-generated constructor stub
+	}
 	private Integer inStFlag;			//强度的偏差状态
 	private Integer inStvFlag;			//强度cv的偏差状态
 	private Integer inElFlag;			//伸长率的偏差状态

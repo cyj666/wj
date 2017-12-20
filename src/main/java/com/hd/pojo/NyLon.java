@@ -154,5 +154,36 @@ public class NyLon {
 	public void setRanges(String ranges) {
 		this.ranges = ranges;
 	}
+	public NyLon(String batchNo, String createDate, String lineNo, String nlFormat, Double linearDensity,
+			Double yarnlevelness, Double strength, Double elongation, Double crimpContraction, Double crimpStability,
+			Double boilingWater, Double oliContent, Integer gridLine, Integer nlStatus, String productionDate,
+			Double densityPercent, Double ldCV, Double strengthCV, Double elongationCV, Double waterRatio,
+			String ranges) {
+		super();
+		this.batchNo = batchNo;
+		this.createDate = createDate;
+		this.lineNo = lineNo;
+		this.nlFormat = nlFormat;
+		this.linearDensity = linearDensity;
+		this.yarnlevelness = yarnlevelness;
+		this.strength = strength;
+		this.elongation = elongation;
+		this.crimpContraction = crimpContraction;
+		this.crimpStability = crimpStability;
+		this.boilingWater = boilingWater;
+		this.oliContent = oliContent;
+		this.gridLine = gridLine;
+		this.nlStatus = nlStatus;
+		this.productionDate = productionDate;
+		this.densityPercent = densityPercent;
+		this.ldCV = ldCV;
+		this.strengthCV = strengthCV;
+		this.elongationCV = elongationCV;
+		this.waterRatio = waterRatio;
+		this.ranges = ranges;
+	}
 	
+	public NyLon() {
+		// TODO Auto-generated constructor stub
+	}
 }
