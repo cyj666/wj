@@ -204,6 +204,12 @@ public class ReadBoilingWater {
 			List<String> allList = new ArrayList<String>();
 			
 			if (!middleBatchNoMap.isEmpty() && !middleLineNoList.isEmpty()) {
+				
+				if (middleBatchNoMap.size() != middleLineNoMap.size()) {
+					fileNameMap.put(fileName, "批号、线位号没有输或者没对上");
+					continue;
+				}
+				
 				for (Integer key : middleBatchNoMap.keySet()) {
 					//获取的一组批号和线位号
 					String batchNoGroup = middleBatchNoMap.get(key);
@@ -247,7 +253,7 @@ public class ReadBoilingWater {
 			}
 			
 			//遍历存放BoilingWater对象的集合，并且给每个对象设置三个属性批号、线位号和状态
-			if (!middleBWList.isEmpty() && !allList.isEmpty()) {
+			if (fileNameMap.isEmpty() && !middleBWList.isEmpty() && !allList.isEmpty()) {
 				for (int i = 0; i < middleBWList.size(); i++) {
 					BoilingWater bw1 = middleBWList.get(i);
 					//包含批号，线位号和状态这三种数据
@@ -260,13 +266,6 @@ public class ReadBoilingWater {
 			bwList.addAll(middleBWList);
 		}
 		
-//		for (BoilingWater bw : bwList) {
-//			System.out.println(bw);
-//		}
-		
-//		for (String fileName : fileNameMap.keySet()) {
-//			System.out.println(fileName + " : " + fileNameMap.get(fileName));
-//		}
 		map.put(1, bwList);
 		map.put(2, fileNameMap);
 		

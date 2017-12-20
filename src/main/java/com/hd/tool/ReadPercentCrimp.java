@@ -187,52 +187,41 @@ public class ReadPercentCrimp {
 				//取得第一个线位号的前缀
 				String prefixs = middleLineNoList.get(0).substring(0, middleLineNoList.get(0).indexOf("-"));
 				
+				String batchNo = null;
 				//遍历中间线位号、中间批号、对象集合，设置对象的线位号与批号属性
 				//遍历中中间线位号集合
 				for (int i = 0; i < middleLineNoList.size(); i++) {
-					//判断第二线位号和第一个线位号前缀是不是一样
-					if (middleLineNoList.get(i).contains(prefixs)) {
-						//取得第一个批号
-						String batchNo = middleBatchNoList.get(count);
-						//判断批号是不是有"-"，来区分日常丝和其他状态的丝
-						if (batchNo.contains("-")) {
-							//设置批号
-							middlePCList.get(i).setBatchNo(batchNo.substring(0, batchNo.indexOf("-")));
-							//设置状态
-							middlePCList.get(i).setPcStatus(Integer.parseInt(batchNo.substring(batchNo.indexOf("-")+1)));
-						} else {
-							//直接设置批号
-							middlePCList.get(i).setBatchNo(batchNo);
-							middlePCList.get(i).setPcStatus(0);
-						}
-						//设置线位号
-						middlePCList.get(i).setLineNo(middleLineNoList.get(i));
-					} else {
-						//后面的线位号前缀和第一个线位号前缀不一致
+					//判断当前的线位号与之前的线位号是否一样
+					if (!middleLineNoList.get(i).contains(prefixs)) {
 						prefixs = middleLineNoList.get(i).substring(0, middleLineNoList.get(i).indexOf("-"));
-						//将批号的下标加1
 						count++;
-						//获取批号
-						String batchNo = middleBatchNoList.get(count);
-						if (batchNo.contains("-")) {
-							//设置批号
-							middlePCList.get(i).setBatchNo(batchNo.substring(0, batchNo.indexOf("-")));
-							//设置状态
-							middlePCList.get(i).setPcStatus(Integer.parseInt(batchNo.substring(batchNo.indexOf("-")+1)));
-						} else {
-							middlePCList.get(i).setBatchNo(batchNo);
-							middlePCList.get(i).setPcStatus(0);
-						}
-						middlePCList.get(i).setLineNo(middleLineNoList.get(i));
 					}
+					//判断批号的数量与线位号的位不同数量是否一致
+					if (count > middleBatchNoList.size()-1) {
+						fileNameMap.put(fileName, "批号、线位号没有输或者没对上");
+						continue;
+					}
+					
+					//获取批号
+					batchNo = middleBatchNoList.get(count);
+					
+					//判断批号是不是有"-"，来区分日常丝和其他状态的丝
+					if (batchNo.contains("-")) {
+						//设置批号
+						middlePCList.get(i).setBatchNo(batchNo.substring(0, batchNo.indexOf("-")));
+						//设置状态
+						middlePCList.get(i).setPcStatus(Integer.parseInt(batchNo.substring(batchNo.indexOf("-")+1)));
+					} else {
+						//直接设置批号
+						middlePCList.get(i).setBatchNo(batchNo);
+						middlePCList.get(i).setPcStatus(0);
+					}
+					//设置线位号
+					middlePCList.get(i).setLineNo(middleLineNoList.get(i));
 				}
 				pcList.addAll(middlePCList);
 			}
 		}
-		
-//		for (PercentCrimp pc : pcList) {
-//			System.out.println(pc);
-//		}
 		
 		map.put(1, pcList);
 		map.put(2, fileNameMap);
