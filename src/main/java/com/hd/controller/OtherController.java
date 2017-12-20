@@ -50,21 +50,27 @@ public class OtherController {
 		Map<String, String> data = new HashMap<String,String>();
 		List<Other> List1 = new ArrayList<Other>();
 		List<Other> otList1 = new ArrayList<Other>();
-		List<Other> List2 = new ArrayList<Other>();
-		List<Other> otList2 = new ArrayList<Other>();
+		//注释部分为手动添加的数据，因页面暂时隐藏该功能，所以暂时注释，待到以后再说
+		/*List<Other> List2 = new ArrayList<Other>();
+		List<Other> otList2 = new ArrayList<Other>();*/
 		List1 =  (List<Other>) jsonObject.get("1");
-		List2 =  (List<Other>) jsonObject.get("2");
+		//List2 =  (List<Other>) jsonObject.get("2");
 		 for (Object obj : List1) {
 			   Other ot = new Other();	  
 				ot = com.alibaba.fastjson.JSONObject.parseObject(obj.toString(),Other.class);
-				System.out.println(ot);
-				otList1.add(ot);
+				//System.out.println(ot);
+				if (ot.getOtStatus()>=11&&ot.getOtStatus()<=19) {   //表示为复测数据，选择跳过不保存
+					continue;
+				}else {
+					otList1.add(ot);
+				}
+				
 			}
-		 for (Object obj : List2) {
+		 /*for (Object obj : List2) {     //表示手动添加的数据保存，不过暂时不用
 			   Other ot = new Other();	  
 				ot = com.alibaba.fastjson.JSONObject.parseObject(obj.toString(),Other.class);				
 				otList2.add(ot);
-			}
+			}*/
 		 
 		otService.updateOther(otList1);
 		/*if (otList2!=null&&otList2.size()!=0) {
