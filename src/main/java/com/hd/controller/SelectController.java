@@ -1,10 +1,13 @@
 package com.hd.controller;
 
+import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.log4j.varia.StringMatchFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -16,6 +19,7 @@ import com.hd.pojo.NyLon;
 import com.hd.pojo.NyLonSon;
 import com.hd.service.CheckIndexService;
 import com.hd.service.SelectService;
+import com.hd.tool.DownloadUtils;
 import com.hd.tool.ExcelAndChartUtils;
 
 @Controller
@@ -75,58 +79,10 @@ public class SelectController extends BaseController{
 		List<NyLonSon> nlList = selectService.findBatchNoDataByStartAndEnd(batchNo, start, end);
 		
 		//生成图片
-		/*String filename = nlList.get(0).getBatchNo()+"("+start+"至"+end+")";
-		String[] rowKeys = {"含油率"}; 
-	    String[] colKeys =ExcelAndChartUtils.autoX1(nlList);
-	    String[] nylonItem = {"oliContent"};
-	    String chartTitle = "测试用折线图"; 
-	    String X = "线位号/日期";
-        String Y = "含油";
-        double[] autoY = ExcelAndChartUtils.autoY1(nlList, "oliContent");
-        int Ystart = (int)autoY[1];
-        int Yend = (int)autoY[0];
-        int space = (int)autoY[2];
-		String pic1 = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, rowKeys, colKeys, nylonItem),
-				chartTitle, X, Y, Ystart, Yend, space);
-		String[] PicName = {pic1};
- 		ExcelAndChartUtils.creatExcel1(nlList, filename, PicName);*/
-		
-		String filename = nlList.get(0).getBatchNo()+"("+start+"至"+end+")"; //生成excel文件名	
-		//8张图的名称
-		String[] rowKeyLinearDensity = {"线密度dtex"}; 
-		String[] rowKeyStrength = {"强度CN/dtex"};
-		String[] rowKeyElongation = {"伸长率%"};
-		String[] rowKeyCrimp = {"卷曲收缩率%","卷曲稳定度%"};
-		String[] rowKeyYarnlevelness = {"条干"};
-		String[] rowKeyBoilingWater= {"沸水"};
-		String[] rowKeyOliContent = {"含油率"}; 
-		String[] rowKeyGridLine = {"网络度"}; 
-				
-	    String[] colKeys =ExcelAndChartUtils.autoX1(nlList);   //自动生成X轴名称
-	    
-	    String[] nylonItem = {"oliContent"};
-	    String[] nylonItemLinearDensity = {"linearDensity"};
-	    
-	    
-	    String chartTitle = "测试用折线图"; 
-	    String X = "线位号/日期";
-        String Y = "含油";
-        double[] autoY = ExcelAndChartUtils.autoY1(nlList, "oliContent");
-        int Ystart = (int)autoY[1];
-        int Yend = (int)autoY[0];
-        int space = (int)autoY[2];
-        String linearDensity = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
-				rowKeyLinearDensity, colKeys, nylonItemLinearDensity),"线密度dtex折线图", X, "线密度dtex", Ystart, Yend, space);
-		String oliContent = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
-				rowKeyOliContent, colKeys, nylonItem),"含油率折线图", X, "含油率", Ystart, Yend, space);
-		String strength = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
-				rowKeyOliContent, colKeys, nylonItem),"强度CN/dtex折线图", X, "强度CN/dtex", Ystart, Yend, space);
-		
-		
-		String[] PicName = {oliContent,linearDensity};
- 		ExcelAndChartUtils.creatExcel1(nlList, filename, PicName);
+		String filename = ResultExcel(nlList, start, end);
  		
- 		
+		model.addAttribute("filename", filename);
+		               
  		
  		
 		String format = nlList.get(0).getBatchNo().substring(3,8);
@@ -144,14 +100,23 @@ public class SelectController extends BaseController{
 			model.addAttribute("format", format);
 			model.addAttribute("nlList", nlList);
 			model.addAttribute("ciList", ciList);
+			
 		}
 		
 		return "select/batchNoData";
 	}
 	
-	/*public static void ResultExcel() {
-		String filename = nlList.get(0).getBatchNo()+"("+start+"至"+end+")"; //生成excel文件名	
-		//8张图的名称
+	@RequestMapping("/download")
+	public String download(@RequestParam(name="filename")String filename,HttpServletResponse response) {	
+		String filePath = "F:\\workspace\\wj\\"+filename+".xls";
+		DownloadUtils.download(response, filePath);
+		return filePath;
+		
+	}
+	
+	public static String ResultExcel(List<NyLonSon> nlList,String start,String end) {
+		String filename = nlList.get(0).getBatchNo()+"("+start+"To"+end+")"; //生成excel文件名	
+		//8张图中折线图的名称
 		String[] rowKeyLinearDensity = {"线密度dtex"}; 
 		String[] rowKeyStrength = {"强度CN/dtex"};
 		String[] rowKeyElongation = {"伸长率%"};
@@ -163,28 +128,60 @@ public class SelectController extends BaseController{
 				
 	    String[] colKeys =ExcelAndChartUtils.autoX1(nlList);   //自动生成X轴名称
 	    
-	    String[] nylonItem = {"oliContent"};
+	    
+	    //String[] nylonItem = {"oliContent"};
 	    String[] nylonItemLinearDensity = {"linearDensity"};
+	    String[] nylonItemStrength = {"strength"};
+	    String[] nylonItemElongation = {"elongation"};
+	    String[] nylonItemCrimp = {"crimpContraction","crimpStability"};
+	    String[] nylonItemYarnlevelness = {"yarnlevelness"};
+	    String[] nylonItemBoilingWater = {"boilingWater"};
+	    String[] nylonItemOliContent = {"oliContent"};
+	    String[] nylonItemGridLine = {"gridLine"};
+	   
 	    
 	    
-	    String chartTitle = "测试用折线图"; 
+	   // String chartTitle = "测试用折线图"; 图片名称
 	    String X = "线位号/日期";
-        String Y = "含油";
-        double[] autoY = ExcelAndChartUtils.autoY1(nlList, "oliContent");
-        int Ystart = (int)autoY[1];
-        int Yend = (int)autoY[0];
-        int space = (int)autoY[2];
+        //String Y = "含油";
+        
+        //自动生成Y轴
+        double[] autoYLinearDensity = ExcelAndChartUtils.autoY1(nlList, "linearDensity");
+        double[] autoYStrength = ExcelAndChartUtils.autoY1(nlList, "strength");
+        double[] autoYElongation = ExcelAndChartUtils.autoY1(nlList, "elongation");
+        double[] autoYCrimp = ExcelAndChartUtils.autoY1(nlList, "crimpContraction"); //
+        double[] autoYYarnlevelness = ExcelAndChartUtils.autoY1(nlList, "yarnlevelness");
+        double[] autoYBoilingWater = ExcelAndChartUtils.autoY1(nlList, "boilingWater");
+        double[] autoYOliContent = ExcelAndChartUtils.autoY1(nlList, "oliContent");
+        double[] autoYGridLine = ExcelAndChartUtils.autoY1(nlList, "gridLine");
+      
+        
+        
+        
         String linearDensity = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
-				rowKeyLinearDensity, colKeys, nylonItemLinearDensity),"线密度dtex折线图", X, "线密度dtex", Ystart, Yend, space);
-		String oliContent = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
-				rowKeyOliContent, colKeys, nylonItem),"含油率折线图", X, "含油率", Ystart, Yend, space);
-		String strength = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
-				rowKeyOliContent, colKeys, nylonItem),"强度CN/dtex折线图", X, "强度CN/dtex", Ystart, Yend, space);
+				rowKeyLinearDensity, colKeys, nylonItemLinearDensity),"线密度dtex折线图", X, "线密度dtex", (int)autoYLinearDensity[1], (int)autoYLinearDensity[0], (int)autoYLinearDensity[2]);
+        String strength = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
+        		rowKeyStrength, colKeys, nylonItemStrength),"强度CN/dtex折线图", X, "强度CN/dtex", (int)autoYStrength[1], (int)autoYStrength[0], (int)autoYStrength[2]);
+        String elongation = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
+        		rowKeyElongation, colKeys, nylonItemElongation),"伸长率%折线图", X, "伸长率%", (int)autoYElongation[1], (int)autoYElongation[0], (int)autoYElongation[2]);
+        String crimp = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
+        		rowKeyCrimp, colKeys, nylonItemCrimp),"卷曲折线图", X, "卷曲", (int)autoYCrimp[1], (int)autoYCrimp[0], (int)autoYCrimp[2]);
+        String yarnlevelness = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
+        		rowKeyYarnlevelness, colKeys, nylonItemYarnlevelness),"条干折线图", X, "条干", (int)autoYYarnlevelness[1], (int)autoYYarnlevelness[0], (int)autoYYarnlevelness[2]);
+        String boilingWater = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
+        		rowKeyBoilingWater, colKeys, nylonItemBoilingWater),"沸水折线图", X, "沸水", (int)autoYBoilingWater[1], (int)autoYBoilingWater[0], (int)autoYBoilingWater[2]);
+        String oliContent = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
+        		rowKeyOliContent, colKeys, nylonItemOliContent),"含油率折线图", X, "含油率", (int)autoYOliContent[1], (int)autoYOliContent[0], (int)autoYOliContent[2]);
+        String gridLine = ExcelAndChartUtils.createChart(ExcelAndChartUtils.createDataset1(nlList, 
+        		rowKeyGridLine, colKeys, nylonItemGridLine),"网络度折线图", X, "网络度", (int)autoYGridLine[1], (int)autoYGridLine[0], (int)autoYGridLine[2]);
 		
 		
-		String[] PicName = {oliContent,linearDensity};
+		
+		String[] PicName = {linearDensity,strength,elongation,crimp,yarnlevelness,boilingWater,oliContent,gridLine};
  		ExcelAndChartUtils.creatExcel1(nlList, filename, PicName);
-	}*/
+ 		
+ 		return filename;
+	}
 	
 	@RequestMapping("/getCheckAgainData")
 	public String checkAgain(@RequestParam("date") String date, @RequestParam("bn") String bn,

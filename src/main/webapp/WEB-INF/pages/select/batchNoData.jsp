@@ -37,10 +37,11 @@
 
 <body>
 	<div class="container-fluid">
+	<span class="hidden filename">${filename}</span>
 	
 		<div class="row">
 			<div class="col-sm-1">
-				<a type="button" id="btn" class="btn btn-link btn-sm">
+				<a type="button" id="btn" class="btn btn-link btn-sm" href="download?filename=${filename}">
 			 		<span class="glyphicon glyphicon-download"></span>导出
 			 	</a> 
 			</div>
@@ -200,14 +201,25 @@
 	$(function() {
 		//导出excel表格
 		$('.btn').click(function() {
-			 $(".MyExcel").table2excel({
+			/* $(".MyExcel").table2excel({
 		            // 不被导出的表格行的CSS class类
 		            exclude: ".noExl",
 		            // 导出的Excel文档的名称，（没看到作用）
 		            name: "Excel Document Name",
 		            // Excel文件的名称
 		            filename: $(".headName").find("h3").text()+"数据"+".xls"
-		     });
+		     });*/
+		     /*$.ajax({
+		    	 type: "GET",
+	             url: "download?filename="+$('.filename').text(),
+	            //data: "filename="+$('.filename'),
+	             //dataType: "json",
+	             success: function(){
+	            	 alert("下载成功！");
+	             }
+	             
+		     })*/
+		     //alert($('.filename').text());
 		});
 		
 		//判断测量值与标准值比较是不是在偏差值范围内
