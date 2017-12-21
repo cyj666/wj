@@ -1,13 +1,11 @@
 package com.hd.controller;
 
-import java.io.File;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.varia.StringMatchFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -73,17 +71,16 @@ public class SelectController extends BaseController{
 	
 	@RequestMapping("/getBatchNoData")
 	public String getBatchNoData(@RequestParam("batchNo") String batchNo,
-			@RequestParam("start") String start, @RequestParam("end") String end, Model model) {
+			@RequestParam("start") String start, @RequestParam("end") String end, 
+			HttpServletRequest request, Model model) {
 		
 		List<CheckIndex> ciList = checkIndexService.findCheckIndexByBatchNo(batchNo);
 		List<NyLonSon> nlList = selectService.findBatchNoDataByStartAndEnd(batchNo, start, end);
 		
-		//生成图片
-		String filename = ResultExcel(nlList, start, end);
- 		
-		model.addAttribute("filename", filename);
-		               
- 		
+		HttpSession session = request.getSession();
+ 		session.setAttribute("nlList", nlList);
+ 		session.setAttribute("start", start);
+ 		session.setAttribute("end", end);
  		
 		String format = nlList.get(0).getBatchNo().substring(3,8);
 		if (format.matches("^0[0-9]{4}$")) {
@@ -107,15 +104,24 @@ public class SelectController extends BaseController{
 	}
 	
 	@RequestMapping("/download")
-	public String download(@RequestParam(name="filename")String filename,HttpServletResponse response) {	
-		String filePath = "F:\\workspace\\wj\\"+filename+".xls";
-		DownloadUtils.download(response, filePath);
-		return filePath;
+	@SuppressWarnings("unchecked")
+	public void  download(HttpServletRequest request, HttpServletResponse response) {	
+		HttpSession session = request.getSession();
 		
+		List<NyLonSon> nlList = (List<NyLonSon>)session.getAttribute("nlList");
+		String start = (String)session.getAttribute("start");
+		String end = (String)session.getAttribute("end");
+		
+		//生成图片
+		String filename = ResultExcel(nlList, start, end);
+
+		String filePath = filename + ".xls";
+		DownloadUtils.download(response, filePath);
 	}
 	
+	
 	public static String ResultExcel(List<NyLonSon> nlList,String start,String end) {
-		String filename = nlList.get(0).getBatchNo()+"("+start+"To"+end+")"; //生成excel文件名	
+		String filename = "E:\\project\\Excel\\" + nlList.get(0).getBatchNo()+"("+start+"To"+end+")"; //生成excel文件名	
 		//8张图中折线图的名称
 		String[] rowKeyLinearDensity = {"线密度dtex"}; 
 		String[] rowKeyStrength = {"强度CN/dtex"};
