@@ -43,10 +43,11 @@
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
 			<param-value>classpath:spring/springmvc-config.xml</param-value>
-			
+		</init-param>
+		<init-param>
 			<!-- 为servlet设置默认的profile -->
 			<param-name>spring.profiles.default</param-name>
-			<param-value>development</param-value>
+            <param-value>development</param-value>
 		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
