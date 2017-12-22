@@ -9,6 +9,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.log4j.varia.StringMatchFilter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -106,9 +107,11 @@ public class SelectController extends BaseController{
 		return "select/batchNoData";
 	}
 	
+	
 	@RequestMapping("/download")
 	public String download(@RequestParam(name="filename")String filename,HttpServletResponse response) {	
-		String filePath = "F:\\workspace\\wj\\"+filename+".xls";
+		String filePath = "F:\\workspace\\wj\\"+filename+".xls";     //存放文件的路径     
+		
 		DownloadUtils.download(response, filePath);
 		return filePath;
 		

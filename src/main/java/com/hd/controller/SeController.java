@@ -1,6 +1,7 @@
 package com.hd.controller;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -220,7 +221,18 @@ public class SeController extends BaseController{
 		data.put("style", "layui-layer-molv");
 		data.put("id", "1");
 		seService.saveSe(seList);
-		otService.saveOther(seList);;
+		//表示要存入录入项的list，过滤复测数据
+		List<StrElongation> otlist = new ArrayList<>();
+		for (StrElongation s : seList) {
+			if (s.getSeStatus()>=11  &&  s.getSeStatus()<=19) {
+				continue;
+			}else {
+				otlist.add(s);
+			}
+			
+		}			
+		otService.saveOther(otlist);
+		
 		return data;
 	}
 }
