@@ -2,25 +2,24 @@ package com.hd.tool;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.log4j.Logger;
-import org.apache.poi.hslf.model.Sheet;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.formula.functions.Rows;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.ClientAnchor;
 import org.apache.poi.ss.usermodel.CreationHelper;
@@ -42,10 +41,8 @@ import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.renderer.category.LineAndShapeRenderer;
 import org.jfree.data.category.CategoryDataset;
-import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DatasetUtilities;
 import org.jfree.ui.RectangleInsets;
-import org.slf4j.LoggerFactory;
 
 import com.hd.pojo.NyLon;
 import com.hd.pojo.NyLonSon;
@@ -322,8 +319,10 @@ public class ExcelAndChartUtils {
 	 * @param PicName   传入图片路径数组
 	 */
 	public static void creatExcel1(List<NyLonSon> nList, String filename,String[] PicName) {
+		BufferedOutputStream bos = null;
+		
 		try {
-			int size = nList.size();// 判断有多少条数据
+			//int size = nList.size();// 判断有多少条数据
 
 			// 1.创建Excel工作薄对象
 			Workbook wb = new HSSFWorkbook();
@@ -520,10 +519,8 @@ public class ExcelAndChartUtils {
 
 			}
 
-	        
 	        insertPicToExcel1(PicName, wb, sheet, nList);
 	        
-					
 			// ## 保存Workbook ##//
 			// 设置默认地址
 			if (filename == null) {
@@ -531,17 +528,32 @@ public class ExcelAndChartUtils {
 			}
 
 			String fileExcel = filename + ".xls";
-			FileOutputStream fileOut = new FileOutputStream(fileExcel);
-			wb.write(fileOut);
-			fileOut.close();
-			System.out.println("创建成功");
-
-			// fos.close();
+			
+            File file = new File(fileExcel);
+            
+            if(!file.getParentFile().exists()) {
+            	file.getParentFile().mkdirs();
+            }
+            
+            file.createNewFile();
+            
+            OutputStream os = new FileOutputStream(file);
+            bos = new BufferedOutputStream(os);  
+            wb.write(bos);  
+			
+			//System.out.println("创建成功");
 
 		} catch (Exception e) {
-			// TODO: handle exception
 			e.printStackTrace();
-		}
+		}finally {  
+            if (bos != null) {  
+                try {
+					bos.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}  
+            }  
+        } 
 	}
 	
 	/**
@@ -773,17 +785,21 @@ public class ExcelAndChartUtils {
 		String filename = DateFormatUtils.format(new Date(), "yyyyMMddHHmmss")+random.nextInt() + ".png";// 用时间作为文件名防止重名的问题发生
 		
 		File file = new File(filename);
+		
+		
+		
 		try {
 			Integer column = categoryDataset.getColumnCount();
 			Integer row = categoryDataset.getRowCount();
-			System.out.println(column+"/"+row);
+			//System.out.println(column+"/"+row);
 			if (space==0) {
 				space=1;
 			}
 			if (column!=null&&row!=null) {
-				ChartUtilities.saveChartAsPNG(file, jfreechart, 1000+column*20, 200+((Yend-Ystart)/space)*50);
+				//自定义大小
+				ChartUtilities.saveChartAsPNG(file, jfreechart, 1000+column*20, 200+((Yend-Ystart)/space)*100);
 			}else {
-			ChartUtilities.saveChartAsPNG(file, jfreechart, 1300, 200);
+			ChartUtilities.saveChartAsPNG(file, jfreechart, 1300, 200);//默认大小
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -1201,30 +1217,30 @@ public class ExcelAndChartUtils {
 		return Y;
 	}
 	
-	public static void main(String[] args) {
-		String[] rowKeys = {"线密度dtex","含水率"};  //底部线的标识，表示有几条线	    
-		String[] rowKeys2 = {"伸长"};  //底部线的标识，表示有几条线
-		String[] rowKeys3 = {"含水"};
-        String[] colKeys = {"32A/8.1", "33B/8.2", "34A/8.3", "32A/8.4", "34A/8.5", "32A/8.6",  
-                "34B/8.7", "35A/8.8", "36B/8.9", "33B/8.10", "32B/8.11", "33A/8.12", "34A/8.13",  
-                "35A/8.14"};	        
-        String[] nylonItem = {"linearDensity","strength"};
-        String[] nylonItem2 = {"elongation"};
-        String[] nylonItem3 = {"waterRatio"};
-        String chartTitle = "测试用折线图"; 
-        String X = "线位号/日期";
-        String Y = "数字";
-        String[] autoX = autoX(createNylon());
-        double[] autoY = autoY(createNylon(), "waterRatio");
-        int Ystart = (int) autoY[0];
-        int Yend = (int) autoY[1];
-        int space = (int) autoY[2];
-        String pic1 = createChart(createDataset(createNylon(), rowKeys, colKeys, nylonItem), chartTitle, X, Y,10,15,1);
-        String pic2 = createChart(createDataset(createNylon(), rowKeys2, colKeys, nylonItem2), chartTitle, X, Y,10,20,2);
-        String pic3 = createChart(createDataset(createNylon(), rowKeys3, colKeys, nylonItem3), chartTitle, X, Y, Ystart, Yend, space);
-        String[] PicName = {pic1,pic2,pic3};
-
-		creatExcel(createNylon(), "test",PicName);
-		//System.out.println(Math.ceil(2.1));
-	}
+//	public static void main(String[] args) {
+//		String[] rowKeys = {"线密度dtex","含水率"};  //底部线的标识，表示有几条线	    
+//		String[] rowKeys2 = {"伸长"};  //底部线的标识，表示有几条线
+//		String[] rowKeys3 = {"含水"};
+//        String[] colKeys = {"32A/8.1", "33B/8.2", "34A/8.3", "32A/8.4", "34A/8.5", "32A/8.6",  
+//                "34B/8.7", "35A/8.8", "36B/8.9", "33B/8.10", "32B/8.11", "33A/8.12", "34A/8.13",  
+//                "35A/8.14"};	        
+//        String[] nylonItem = {"linearDensity","strength"};
+//        String[] nylonItem2 = {"elongation"};
+//        String[] nylonItem3 = {"waterRatio"};
+//        String chartTitle = "测试用折线图"; 
+//        String X = "线位号/日期";
+//        String Y = "数字";
+//        String[] autoX = autoX(createNylon());
+//        double[] autoY = autoY(createNylon(), "waterRatio");
+//        int Ystart = (int) autoY[0];
+//        int Yend = (int) autoY[1];
+//        int space = (int) autoY[2];
+//        String pic1 = createChart(createDataset(createNylon(), rowKeys, colKeys, nylonItem), chartTitle, X, Y,10,15,1);
+//        String pic2 = createChart(createDataset(createNylon(), rowKeys2, colKeys, nylonItem2), chartTitle, X, Y,10,20,2);
+//        String pic3 = createChart(createDataset(createNylon(), rowKeys3, colKeys, nylonItem3), chartTitle, X, Y, Ystart, Yend, space);
+//        String[] PicName = {pic1,pic2,pic3};
+//
+//		creatExcel(createNylon(), "test",PicName);
+//		//System.out.println(Math.ceil(2.1));
+//	}
 }

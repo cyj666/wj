@@ -4,9 +4,14 @@
 	xmlns="http://java.sun.com/xml/ns/javaee"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	id="jt-manage" version="2.5">
-  <context-param>
+  	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>classpath:spring/applicationContext*.xml</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>spring.profiles.default</param-name>
+		<param-value>development</param-value>
 	</context-param>
 	
 	<!--Spring的ApplicationContext 载入 -->
@@ -39,6 +44,11 @@
 			<param-name>contextConfigLocation</param-name>
 			<param-value>classpath:spring/springmvc-config.xml</param-value>
 		</init-param>
+		<init-param>
+			<!-- 为servlet设置默认的profile -->
+			<param-name>spring.profiles.default</param-name>
+            <param-value>development</param-value>
+		</init-param>
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
@@ -50,6 +60,15 @@
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
+	
+    <error-page>
+       <error-code>404</error-code>
+       <location>/WEB-INF/pages/error/404.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/WEB-INF/pages/error/500.jsp</location>
+    </error-page>
 </web-app>
 
 
