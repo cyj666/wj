@@ -9,9 +9,14 @@
 		<param-value>classpath:spring/applicationContext*.xml</param-value>
 	</context-param>
 	
-	<context-param>
+ 	<context-param>
 		<param-name>spring.profiles.default</param-name>
 		<param-value>development</param-value>
+	</context-param>
+	
+ 	<context-param>
+		<param-name>spring.profiles.active</param-name>
+		<param-value>production</param-value>
 	</context-param>
 	
 	<!--Spring的ApplicationContext 载入 -->
@@ -44,11 +49,15 @@
 			<param-name>contextConfigLocation</param-name>
 			<param-value>classpath:spring/springmvc-config.xml</param-value>
 		</init-param>
-		<init-param>
-			<!-- 为servlet设置默认的profile -->
+<!-- 		<init-param>
+			为servlet设置默认的profile
 			<param-name>spring.profiles.default</param-name>
             <param-value>development</param-value>
 		</init-param>
+		<init-param>
+			<param-name>spring.profiles.active</param-name>
+			<param-value>production</param-value>
+		</init-param> -->
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 

@@ -59,7 +59,7 @@ public class OtherController {
 			   Other ot = new Other();	  
 				ot = com.alibaba.fastjson.JSONObject.parseObject(obj.toString(),Other.class);
 				//System.out.println(ot);
-				if (ot.getOtStatus()>=11&&ot.getOtStatus()<=19) {   //表示为复测数据，选择跳过不保存
+				if (ot.getOtStatus() >= 11 && ot.getOtStatus() <= 19) {   //表示为复测数据，选择跳过不保存
 					continue;
 				}else {
 					otList1.add(ot);
