@@ -37,8 +37,8 @@
 			<a type="button" class="btn btn-sm btn-danger search">
 				<span class="glyphicon glyphicon-search"></span> 查询
 			</a>
-			<button type="button" id="btn" class="btn btn-sm btn-success">
-			 <span class="glyphicon glyphicon-download-alt"></span>导出</button> 
+			<a type="button" id="btn" class="btn btn-sm btn-success" href="downloadMore">
+			 <span class="glyphicon glyphicon-download-alt"></span>导出</a> 
 		</div>
 		<div>	
 			开始日期：<input type="text" id="control_date1" class="jeinput" placeholder="YYYY-MM-DD" style="height:21px;width:173px"/>
@@ -219,7 +219,7 @@ $(function() {
 $(function(){
 	var length = $('.operate').length;
 	
-    $("#btn").click(function(){
+   /* $("#btn").click(function(){
     	//alert("导出");
     	if(length==0){
     		alert("没有数据，请先选择");
@@ -234,7 +234,7 @@ $(function(){
 	            filename: $(".FileName").text()+".xls"
 	        });
     	}
-    });
+    });*/
     
     
     fenye(20,1,length);//默认显示第一页

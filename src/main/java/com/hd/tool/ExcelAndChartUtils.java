@@ -9,6 +9,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -90,6 +91,17 @@ public class ExcelAndChartUtils {
 		return cellStyle;
 	}
 
+	/**
+	 * 保留两位小数
+	 * @param number
+	 * @return
+	 */
+	public static Double RetainedDecimal(Number number) {
+		double f = (double) number;  
+		BigDecimal b = new BigDecimal(f);  
+		double f1   = b.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue();  
+		return f1;
+	}
 	
 	/**
 	 * 生成Excel
@@ -169,7 +181,8 @@ public class ExcelAndChartUtils {
 				}
 
 			}
-
+			
+		
 			HSSFRow rowX;
 			// 设置（内容）
 			for (int i = 0; i < size; i++) {
@@ -195,59 +208,128 @@ public class ExcelAndChartUtils {
 						break;
 					case 4:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getLinearDensity());
+						if (nList.get(i).getLinearDensity()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getLinearDensity());
+						}
+						//cell.setCellValue(nList.get(i).getLinearDensity());
 						break;
 					case 5:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getDensityPercent());
+						if (nList.get(i).getDensityPercent()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getDensityPercent());
+						}
+						//cell.setCellValue(nList.get(i).getDensityPercent());
 						break;
 					case 6:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getLdCV());
+						if (nList.get(i).getLdCV()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getLdCV());
+						}
+						//cell.setCellValue(nList.get(i).getLdCV());
 						break;
 					case 7:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getStrength());
+						if (nList.get(i).getStrength()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getStrength()/100);
+						}	
+						//cell.setCellValue(nList.get(i).getStrength());
 						break;
 					case 8:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getStrengthCV());
+						if (nList.get(i).getStrengthCV()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(RetainedDecimal(nList.get(i).getStrengthCV()));
+						}	
+						//cell.setCellValue(nList.get(i).getStrengthCV());
 						break;
 					case 9:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getElongation());
+						if (nList.get(i).getElongation()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getElongation()/10);
+						}	
+						//cell.setCellValue(nList.get(i).getElongation());
 						break;
 					case 10:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getElongationCV());
+						if (nList.get(i).getElongationCV()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(RetainedDecimal(nList.get(i).getElongationCV()));
+						}	
+						//cell.setCellValue(nList.get(i).getElongationCV());
 						break;
 					case 11:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getYarnlevelness());
+						if (nList.get(i).getYarnlevelness()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getYarnlevelness());
+						}	
+						//cell.setCellValue(nList.get(i).getYarnlevelness());
 						break;
 					case 12:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getCrimpContraction());
+						if (nList.get(i).getCrimpContraction()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getCrimpContraction()/10);
+						}			
+						
 						break;
 					case 13:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getCrimpStability());
+						if (nList.get(i).getCrimpStability()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getCrimpStability()/10);
+						}		
 						break;
 					case 14:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getBoilingWater());
+						if (nList.get(i).getBoilingWater()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getBoilingWater()/10);
+						}
+						//cell.setCellValue(nList.get(i).getBoilingWater());
 						break;
 					case 15:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getOliContent());
+						if (nList.get(i).getOliContent()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getOliContent()/100);
+						}
+						//cell.setCellValue(nList.get(i).getOliContent());
 						break;
 					case 16:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getWaterRatio());
+						if (nList.get(i).getWaterRatio()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getWaterRatio());
+						}
+						//cell.setCellValue(nList.get(i).getWaterRatio());
 						break;
 					case 17:
 						cell.setCellStyle(cellStyle);
-						cell.setCellValue(nList.get(i).getGridLine());
+						if (nList.get(i).getGridLine()==null) {
+							cell.setCellValue("");
+						}else {
+							cell.setCellValue(nList.get(i).getGridLine());
+						}
+						//cell.setCellValue(nList.get(i).getGridLine());
 						break;
 					case 18:
 						cell.setCellStyle(cellStyle);

@@ -31,17 +31,23 @@ public class SelectController extends BaseController{
 	private CheckIndexService checkIndexService;
 	
 	@RequestMapping("/selectData")
-	public String selectOneDayData(@RequestParam("date") String date,Model model) {
+	public String selectOneDayData(@RequestParam("date") String date,Model model,
+			HttpServletRequest request) {
 		List<NyLon> nlList = selectService.findByDay(date);
 		date = date.substring(date.indexOf("-")+1);
 		
 		model.addAttribute("nlList", nlList);
 		model.addAttribute("date", date);
+		
+		HttpSession session = request.getSession();
+ 		session.setAttribute("nlListOne", nlList);
+ 		session.setAttribute("date", date);
 		return "select/oneDay";
 	}
 	
 	@RequestMapping("/selectDataRange")
-	public String selectDataRange(@RequestParam("date1") String date1,@RequestParam("date2") String date2,Model model) {
+	public String selectDataRange(@RequestParam("date1") String date1,@RequestParam("date2") String date2,
+			Model model,HttpServletRequest request) {
 		List<NyLon> nlList = selectService.findByDateRange(date1, date2);
 		date1 = date1.substring(date1.indexOf("-")+1);
 		date2 = date2.substring(date2.indexOf("-")+1);
@@ -49,6 +55,11 @@ public class SelectController extends BaseController{
 		
 		model.addAttribute("date1", date1);
 		model.addAttribute("date2", date2);
+		
+		HttpSession session = request.getSession();//防止与之前取名重复
+ 		session.setAttribute("nlListMore", nlList);
+ 		session.setAttribute("date1", date1);
+ 		session.setAttribute("date2", date2);
 		return "select/dateRange";
 	}
 	
@@ -79,7 +90,7 @@ public class SelectController extends BaseController{
 		List<NyLonSon> nlList = selectService.findBatchNoDataByStartAndEnd(batchNo, start, end);
 		
 		HttpSession session = request.getSession();
- 		session.setAttribute("nlList", nlList);
+ 		session.setAttribute("nlListMonth", nlList);   //防止与之前取名重复
  		session.setAttribute("start", start);
  		session.setAttribute("end", end);
  		
@@ -110,7 +121,7 @@ public class SelectController extends BaseController{
 	public void  download(HttpServletRequest request, HttpServletResponse response) {	
 		HttpSession session = request.getSession();
 		
-		List<NyLonSon> nlList = (List<NyLonSon>)session.getAttribute("nlList");
+		List<NyLonSon> nlList = (List<NyLonSon>)session.getAttribute("nlListMonth"); //防止与之前取名重复
 		String start = (String)session.getAttribute("start");
 		String end = (String)session.getAttribute("end");
 		
@@ -120,7 +131,13 @@ public class SelectController extends BaseController{
 		String filePath = filename + ".xls";
 		DownloadUtils.download(response, filePath);
 	}
-	
+	public static String ResultExcel1(List<NyLon> nlList,String start,String end) {
+		String filename = "E:\\project\\Excel\\" + nlList.get(0).getBatchNo()+"("+start+"To"+end+")"; //生成excel文件名	
+		String[] PicName = {};
+		ExcelAndChartUtils.creatExcel(nlList, filename, PicName);
+		return filename;
+		
+	}
 	
 	public static String ResultExcel(List<NyLonSon> nlList,String start,String end) {
 		String filename = "E:\\project\\Excel\\" + nlList.get(0).getBatchNo()+"("+start+"To"+end+")"; //生成excel文件名	
@@ -211,5 +228,49 @@ public class SelectController extends BaseController{
 		
 		model.addAttribute("nlList", nlList);
 		return "select/checkAgain";
+	}
+	
+	public static String oneOrMoreResultExcel(List<NyLon> nlList,String date1,String date2) {
+		String filename = null;
+		if (date2!=null) {
+			filename = "E:\\project\\Excel\\" +"("+date1+"To"+date2+")"; //生成excel文件名	
+		}else {
+			filename = "E:\\project\\Excel\\" +date1; //生成excel文件名	
+		}
+		String[] PicName= {};
+		ExcelAndChartUtils.creatExcel(nlList, filename, PicName);
+		return filename;
+	}
+	
+	@RequestMapping("/downloadOne")
+	@SuppressWarnings("unchecked")
+	public void  downloadOne(HttpServletRequest request, HttpServletResponse response) {	
+		HttpSession session = request.getSession();
+		
+		List<NyLon> nlList = (List<NyLon>)session.getAttribute("nlListOne");
+		String date1 = (String)session.getAttribute("date");
+
+		
+		//生成图片
+		String filename = oneOrMoreResultExcel(nlList, date1, null);
+
+		String filePath = filename + ".xls";
+		DownloadUtils.download(response, filePath);
+	}
+	
+	@RequestMapping("/downloadMore")
+	@SuppressWarnings("unchecked")
+	public void  downloadMore(HttpServletRequest request, HttpServletResponse response) {	
+		HttpSession session = request.getSession();
+		
+		List<NyLon> nlList = (List<NyLon>)session.getAttribute("nlListMore");
+		String date1 = (String)session.getAttribute("date1");
+		String date2 = (String)session.getAttribute("date2");
+		
+		//生成图片
+		String filename = ResultExcel1(nlList, date1, date2);
+
+		String filePath = filename + ".xls";
+		DownloadUtils.download(response, filePath);
 	}
 }

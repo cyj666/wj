@@ -255,10 +255,10 @@
 
 		/**
 		 *线密度的正则表达及判断
-		 *数字，不允许字符，一位小数
+		 *3位整数位数字，不允许字符，1位小数
 		 */
 		$(".linearDensity").each(function(i) {
-			var reg = /^[0-9]{1,2}(\.[0-9]{1}){0,1}$/;
+			var reg = /^[0-9]{1,3}(\.[0-9]{0,1}){0,1}$/;
 			var length = $(".linearDensity").length;
 			if (i <= length) {
 				$(this).blur(function() {
@@ -279,7 +279,7 @@
 		 *条干的正则表达及判断
 		 */
 		$(".yarnlevelness").each(function(i) {
-			var reg = /^[0-9]{1,2}(\.[0-9]){0,2}$/;
+			var reg = /^[0-9]{1,2}(\.[0-9]{0,1}){0,1}$/;
 			var length = $(".yarnlevelness").length;
 			if (i <= length) {
 				$(this).blur(function() {
@@ -300,7 +300,7 @@
 		 *网络线的正则表达及判断
 		 */
 		$(".gridLine").each(function(i) {
-			var reg = /^[0-9]{1,2}$/;
+			var reg = /^[0-9]{1,3}$/;
 			var length = $(".gridLine").length;
 			if (i <= length) {
 				$(this).blur(function() {
@@ -322,7 +322,7 @@
 		 *数字，可有小数字 ,2位小数
 		 */
 		$(".d").each(function(i) {
-			var reg = /^[0-9]{1,2}(\.[0-9]){0,2}$/;
+			var reg = /^[0-9]{1,2}(\.[0-9]{0,2}){0,1}$/;
 			var length = $(".d").length;
 			if (i <= length) {
 				$(this).blur(function() {
@@ -344,7 +344,7 @@
 		 *数字，可有小数字 ,2位小数
 		 */
 		$(".cv").each(function(i) {
-			var reg = /^[0-9]{1,2}(\.[0-9]){0,2}$/;
+			var reg = /^[0-9]{1,2}(\.[0-9]{0,2}){0,1}$/;
 			var length = $(".cv").length;
 			if (i <= length) {
 				$(this).blur(function() {
@@ -366,7 +366,7 @@
 		 *数字，可有小数字 ,2位小数
 		 */
 		$(".waterRatio").each(function(i) {
-			var reg = /^[0-9]{1,2}(\.[0-9]){0,2}$/;
+			var reg = /^[0-9]{1,2}(\.[0-9]{0,2}){0,1}$/;
 			var length = $(".waterRatio").length;
 			if (i <= length) {
 				$(this).blur(function() {
@@ -388,7 +388,7 @@
 		 *字符
 		 */
 		$(".ranges").each(function(i) {
-			var reg = /^[0-9]{1,3}~{1}[0-9]{1,3}$/;
+			var reg = /^[0-9]{1,3}-{1}[0-9]{1,3}$/;
 			var length = $(".waterRatio").length;
 			if (i <= length) {
 				$(this).blur(function() {
