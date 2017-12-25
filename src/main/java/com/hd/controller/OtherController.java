@@ -59,8 +59,7 @@ public class OtherController {
 			   Other ot = new Other();	  
 				ot = com.alibaba.fastjson.JSONObject.parseObject(obj.toString(),Other.class);
 				//System.out.println(ot);
-				otList1.add(ot);
-				
+				otList1.add(ot);		
 			}
 		 /*for (Object obj : List2) {     //表示手动添加的数据保存，不过暂时不用
 			   Other ot = new Other();	  
